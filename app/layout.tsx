@@ -2,9 +2,25 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Full Job Quitter — Plan Your Escape from the 9-to-5",
+  metadataBase: new URL("https://fulljogquitter.netlify.app"),
+  title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
   description:
     "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
+  openGraph: {
+    title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
+    description:
+      "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
+    url: "https://fulljogquitter.netlify.app",
+    siteName: "Full Jog Quitter",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
+    description:
+      "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
+  },
 };
 
 export default function RootLayout({
