@@ -2,7 +2,6 @@ import Link from "next/link"
 import {
   Calculator,
   Route,
-  BarChart3,
   TrendingUp,
   Wallet,
   Calendar,
@@ -57,7 +56,7 @@ export default async function DashboardPage() {
               Start with your Freedom Calculator
             </h2>
             <p className="text-[#6e6e73] mb-6">
-              Tell us about your expenses and savings, and we'll calculate your runway to freedom.
+              Tell us about your expenses and savings, and we&apos;ll calculate your runway to freedom.
             </p>
             <Link href="/calculator">
               <Button className="rounded-xl bg-[#0066cc] hover:bg-[#0066cc]/90 text-white px-6 h-12">
@@ -143,7 +142,7 @@ export default async function DashboardPage() {
               />
               {runway.isFunded && (
                 <p className="text-sm text-[#34c759] font-medium">
-                  You're fully funded for your target runway.
+                  You&apos;re fully funded for your target runway.
                 </p>
               )}
             </CardContent>

@@ -308,7 +308,7 @@ export function AuthForm({ defaultMode = "sign-in" }: AuthFormProps) {
               </>
             ) : (
               <>
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <button
                   type="button"
                   onClick={() => setMode("sign-up")}

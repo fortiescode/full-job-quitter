@@ -64,7 +64,7 @@ export function BentoGrid() {
             Everything you need to escape.
           </h2>
           <p className="text-lg text-[#6e6e73] max-w-2xl mx-auto">
-            A focused toolkit for the most important career decision you'll make.
+            A focused toolkit for the most important career decision you&apos;ll make.
           </p>
         </motion.div>
 

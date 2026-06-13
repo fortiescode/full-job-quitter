@@ -18,7 +18,7 @@ export function Navbar() {
             href="/"
             className="text-lg font-semibold tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]"
           >
-            full-job-quitter
+            full-jog-quitter
           </Link>
 
           <div className="flex items-center gap-3">

@@ -37,7 +37,7 @@ export function Sidebar() {
           href="/"
           className="text-xl font-semibold tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]"
         >
-          full-job-quitter
+          full-jog-quitter
         </Link>
       </div>
 
