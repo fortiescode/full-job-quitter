@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://fulljogquitter.netlify.app"),
   title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
+  icons: {
+    icon: "/faviconnew.svg",
+  },
   description:
     "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
   openGraph: {
@@ -14,6 +17,7 @@ export const metadata: Metadata = {
     siteName: "Full Jog Quitter",
     locale: "en_US",
     type: "website",
+    images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
