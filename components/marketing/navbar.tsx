@@ -9,14 +9,14 @@ export function Navbar() {
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       className="fixed top-0 left-0 right-0 z-50"
     >
       <nav className="mx-4 mt-4 md:mx-6 md:mt-6">
-        <div className="glass-panel rounded-2xl px-5 py-3 max-w-7xl mx-auto flex items-center justify-between">
+        <div className="bg-white/80 backdrop-blur-xl border border-[#e8e0cc] rounded-2xl px-5 py-3 max-w-7xl mx-auto flex items-center justify-between shadow-sm">
           <Link
             href="/"
-            className="text-lg font-semibold tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]"
+            className="text-lg font-semibold tracking-tight text-[#1d1d1f]"
           >
             full-jog-quitter
           </Link>
@@ -25,13 +25,13 @@ export function Navbar() {
             <Link href="/auth/sign-in">
               <Button
                 variant="ghost"
-                className="rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10"
+                className="rounded-xl text-[#1d1d1f] hover:bg-[#f8f1de]"
               >
                 Sign in
               </Button>
             </Link>
             <Link href="/auth/sign-up">
-              <Button className="rounded-xl bg-[#0066cc] hover:bg-[#0066cc]/90 text-white px-5">
+              <Button className="rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white px-5">
                 Get started
               </Button>
             </Link>

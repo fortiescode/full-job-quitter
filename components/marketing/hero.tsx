@@ -12,31 +12,31 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-          className="inline-flex items-center gap-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 mb-8"
+          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="inline-flex items-center gap-2 rounded-full bg-white border border-[#e8e0cc] px-4 py-1.5 mb-8 shadow-sm"
         >
-          <Sparkles size={16} strokeWidth={1.75} className="text-[#0066cc]" />
-          <span className="text-sm font-medium text-[#1d1d1f] dark:text-[#f5f5f7]">
-            Your exit strategy, reimagined
+          <Sparkles size={16} strokeWidth={1.75} className="text-[#f5c542]" />
+          <span className="text-sm font-medium text-[#1d1d1f]">
+            Your tool to escape
           </span>
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] leading-[1.05] mb-8"
+          transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+          className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.05] mb-8"
         >
           Quit your 9-to-5
           <br />
-          <span className="text-[#0066cc]">with confidence.</span>
+          <span className="text-[#f5c542]">with confidence.</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
-          className="text-xl md:text-2xl text-[#6e6e73] max-w-2xl mx-auto mb-12 leading-relaxed"
+          transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+          className="text-xl md:text-2xl text-[#8a8a8a] max-w-2xl mx-auto mb-12 leading-relaxed"
         >
           Calculate your financial runway, track milestones, and build a clear plan
           to leave your day job on your own terms.
@@ -45,13 +45,13 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link href="/auth/sign-up">
             <Button
               size="lg"
-              className="h-14 px-8 rounded-2xl bg-[#0066cc] hover:bg-[#0066cc]/90 text-white text-lg font-medium"
+              className="h-14 px-8 rounded-2xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white text-lg font-medium"
             >
               Start your plan
               <ArrowRight size={20} strokeWidth={1.75} className="ml-2" />
@@ -61,7 +61,7 @@ export function Hero() {
             <Button
               size="lg"
               variant="outline"
-              className="h-14 px-8 rounded-2xl border-[rgba(0,0,0,0.08)] dark:border-white/10 text-[#1d1d1f] dark:text-[#f5f5f7] text-lg font-medium"
+              className="h-14 px-8 rounded-2xl border-[#e8e0cc] bg-white text-[#1d1d1f] text-lg font-medium hover:bg-[#f8f1de]"
             >
               Sign in
             </Button>
@@ -70,7 +70,7 @@ export function Hero() {
       </div>
 
       {/* Soft gradient orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#0066cc]/10 rounded-full blur-[120px] -z-10 pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#f5c542]/20 rounded-full blur-[120px] -z-10 pointer-events-none" />
     </section>
   )
 }

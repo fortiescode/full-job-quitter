@@ -5,7 +5,7 @@ import { Footer } from "@/components/marketing/footer"
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f5f7] dark:bg-black">
+    <div className="min-h-screen flex flex-col bg-[#f8f1de]">
       <Navbar />
       <Hero />
       <BentoGrid />
