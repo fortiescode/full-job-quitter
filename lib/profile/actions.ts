@@ -41,6 +41,7 @@ export async function updateProfile(data: {
   }
 
   revalidatePath("/(app)", "layout")
+  revalidatePath("/(app)/dashboard", "page")
   return { success: true }
 }
 

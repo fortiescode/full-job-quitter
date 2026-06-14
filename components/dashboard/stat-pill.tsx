@@ -17,11 +17,11 @@ export function StatPill({ label, value, variant = "default", compact = false }:
   return (
     <div
       className={`flex flex-col rounded-2xl shadow-sm ${variants[variant]} ${
-        compact ? "px-4 py-2" : "px-5 py-3"
+        compact ? "px-3 py-1.5" : "px-5 py-3"
       }`}
     >
-      <span className={`opacity-70 ${compact ? "text-[10px]" : "text-xs"}`}>{label}</span>
-      <span className={`font-semibold ${compact ? "text-base" : "text-lg"}`}>{value}</span>
+      <span className={`opacity-70 ${compact ? "text-[9px]" : "text-xs"}`}>{label}</span>
+      <span className={`font-semibold ${compact ? "text-sm" : "text-lg"}`}>{value}</span>
     </div>
   )
 }

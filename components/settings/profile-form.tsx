@@ -96,6 +96,8 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
   const [emailReminders, setEmailReminders] = useState(profile?.email_reminders ?? true)
   const [compactMode, setCompactMode] = useState(profile?.compact_mode ?? false)
 
+  const [error, setError] = useState<string | null>(null)
+
   function showSaved(section: string) {
     setSavedSection(section)
     setTimeout(() => setSavedSection(null), 3000)
@@ -103,38 +105,53 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
 
   function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
+    setError(null)
     startTransition(async () => {
-      await updateProfile({
+      const result = await updateProfile({
         full_name: fullName,
         avatar_url: avatarUrl,
         current_job_title: jobTitle,
         why_quit: whyQuit,
         risk_tolerance: riskTolerance || null,
       })
+      if (result.error) {
+        setError(result.error)
+        return
+      }
       showSaved("profile")
     })
   }
 
   function handleSaveEscapePlan(e: React.FormEvent) {
     e.preventDefault()
+    setError(null)
     startTransition(async () => {
-      await updateEscapePlan({
+      const result = await updateEscapePlan({
         target_quit_date: targetQuitDate || null,
         target_runway_months: targetRunway,
         desired_post_quit_income: postQuitIncome,
         emergency_fund_months: emergencyFundMonths,
       })
+      if (result.error) {
+        setError(result.error)
+        return
+      }
       showSaved("escape")
     })
   }
 
   function handleSavePreferences(e: React.FormEvent) {
     e.preventDefault()
+    setError(null)
     startTransition(async () => {
-      await updateProfile({
+      const result = await updateProfile({
         compact_mode: compactMode,
         email_reminders: emailReminders,
       })
+      if (result.error) {
+        setError(result.error)
+        return
+      }
       showSaved("preferences")
     })
   }
@@ -538,6 +555,9 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
                 </Button>
                 {savedSection === "preferences" && (
                   <p className="text-sm text-[#34c759]">Preferences saved.</p>
+                )}
+                {error && savedSection !== "preferences" && (
+                  <p className="text-sm text-[#ff3b30]">{error}</p>
                 )}
               </form>
             </CardContent>

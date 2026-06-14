@@ -87,7 +87,7 @@ export default async function DashboardPage() {
     : 0
 
   return (
-    <div className={compact ? "space-y-6" : "space-y-8"}>
+    <div className={compact ? "space-y-5" : "space-y-8"}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <WelcomeHeader name={fullName} compact={compact} />
@@ -105,10 +105,10 @@ export default async function DashboardPage() {
       </div>
 
       {/* Main metrics */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${compact ? "gap-4" : "gap-5"}`}>
-        <Card className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-5" : "p-6"}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${compact ? "gap-3" : "gap-5"}`}>
+        <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
           <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Total savings</p>
-          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-3xl" : "text-4xl"}`}>
+          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {formatCurrency(Number(goal?.current_savings) || 0)}
           </p>
           <div className={`h-1.5 bg-[#f8f1de] rounded-full overflow-hidden ${compact ? "mt-3" : "mt-4"}`}>
@@ -119,9 +119,9 @@ export default async function DashboardPage() {
           </div>
         </Card>
 
-        <Card className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-5" : "p-6"}`}>
+        <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
           <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Freedom funded</p>
-          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-3xl" : "text-4xl"}`}>
+          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {formatNumber(fundingProgress, 1)}%
           </p>
           <p className={`text-[#8a8a8a] ${compact ? "text-xs mt-1.5" : "text-sm mt-2"}`}>
@@ -129,9 +129,9 @@ export default async function DashboardPage() {
           </p>
         </Card>
 
-        <Card className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-5" : "p-6"}`}>
+        <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
           <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Months to freedom</p>
-          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-3xl" : "text-4xl"}`}>
+          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {runway?.projectedMonthsToGoal ?? "—"}
           </p>
           <p className={`text-[#8a8a8a] ${compact ? "text-xs mt-1.5" : "text-sm mt-2"}`}>
@@ -141,9 +141,9 @@ export default async function DashboardPage() {
           </p>
         </Card>
 
-        <Card className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-5" : "p-6"}`}>
+        <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
           <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Active subscriptions</p>
-          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-3xl" : "text-4xl"}`}>
+          <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {subscriptions.length}
           </p>
           <p className={`text-[#8a8a8a] ${compact ? "text-xs mt-1.5" : "text-sm mt-2"}`}>
@@ -153,10 +153,10 @@ export default async function DashboardPage() {
       </div>
 
       {/* Grid */}
-      <div className={`grid grid-cols-1 lg:grid-cols-12 ${compact ? "gap-4" : "gap-5"}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-12 ${compact ? "gap-3" : "gap-5"}`}>
         {/* Welcome / profile card */}
-        <Card className="lg:col-span-4 bg-[#f5c542] rounded-3xl border-none shadow-sm overflow-hidden">
-          <CardContent className={`h-full flex flex-col justify-between ${compact ? "p-6" : "p-8"}`}>
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-[#f5c542] rounded-3xl border-none shadow-sm overflow-hidden">
+          <CardContent className={`h-full flex flex-col justify-between ${compact ? "p-5" : "p-8"}`}>
             <div>
               <div className={`rounded-2xl bg-white/30 flex items-center justify-center ${compact ? "w-14 h-14 mb-4" : "w-16 h-16 mb-6"}`}>
                 <Wallet size={compact ? 28 : 32} strokeWidth={1.75} className="text-[#1d1d1f]" />
@@ -178,7 +178,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Expense breakdown */}
-        <Card className="lg:col-span-5 bg-white rounded-3xl border-none shadow-sm">
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-5 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Receipt size={compact ? 16 : 18} strokeWidth={1.75} />
@@ -196,7 +196,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Milestone progress */}
-        <Card className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={compact ? "pb-2" : ""}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Target size={compact ? 16 : 18} strokeWidth={1.75} />
@@ -218,14 +218,14 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Subscriptions & loans dark card */}
-        <Card className="lg:col-span-4 bg-[#1d1d1f] rounded-3xl border-none shadow-sm">
-          <CardContent className={`h-full ${compact ? "p-5" : "p-6"}`}>
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-[#1d1d1f] rounded-3xl border-none shadow-sm">
+          <CardContent className="h-full">
             <SubscriptionLoanCard subscriptions={subscriptions} loans={loans} compact={compact} />
           </CardContent>
         </Card>
 
         {/* Recent expenses */}
-        <Card className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <TrendingDown size={compact ? 16 : 18} strokeWidth={1.75} />
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Calendar / projected quit date */}
-        <Card className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={compact ? "pb-2" : ""}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Calendar size={compact ? 16 : 18} strokeWidth={1.75} />
@@ -282,7 +282,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Milestones section */}
-      <Card className="bg-white rounded-3xl border-none shadow-sm">
+      <Card size={compact ? "compact" : "default"} className="bg-white rounded-3xl border-none shadow-sm">
         <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
           <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
             <Route size={compact ? 16 : 18} strokeWidth={1.75} />
