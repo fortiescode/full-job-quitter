@@ -11,6 +11,7 @@ export interface RunwayResult {
   requiredSavings: number
   savingsGap: number
   monthlySurplus: number
+  monthlyShortfallAfterQuit: number
   projectedMonthsToGoal: number | null
   projectedQuitDate: Date | null
   currentRunwayMonths: number
@@ -57,6 +58,7 @@ export function calculateRunway(inputs: RunwayInputs): RunwayResult {
     requiredSavings,
     savingsGap,
     monthlySurplus,
+    monthlyShortfallAfterQuit: postQuitMonthlyGap,
     projectedMonthsToGoal,
     projectedQuitDate,
     currentRunwayMonths,

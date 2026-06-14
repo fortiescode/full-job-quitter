@@ -425,27 +425,58 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
               <p className="text-4xl font-semibold text-[#1d1d1f]">
                 {formatCurrency(runway.requiredSavings)}
               </p>
+              <p className="text-xs text-[#8a8a8a] mt-2">
+                Monthly shortfall × months of safety
+              </p>
             </CardContent>
           </Card>
 
           <div className="grid grid-cols-2 gap-5">
             <Card className="bg-white rounded-3xl border-none shadow-sm">
               <CardContent className="p-6">
-                <p className="text-sm text-[#8a8a8a] mb-1">Current runway</p>
-                <p className="text-2xl font-semibold text-[#1d1d1f]">
-                  {formatNumber(runway.currentRunwayMonths, 1)} mo
+                <p className="text-sm text-[#8a8a8a] mb-1">Monthly savings</p>
+                <p
+                  className={`text-2xl font-semibold ${
+                    runway.monthlySurplus < 0 ? "text-[#ff3b30]" : "text-[#34c759]"
+                  }`}
+                >
+                  {formatCurrency(runway.monthlySurplus)}
                 </p>
               </CardContent>
             </Card>
             <Card className="bg-white rounded-3xl border-none shadow-sm">
               <CardContent className="p-6">
-                <p className="text-sm text-[#8a8a8a] mb-1">Savings gap</p>
-                <p className="text-2xl font-semibold text-[#1d1d1f]">
-                  {formatCurrency(Math.max(runway.savingsGap, 0))}
+                <p className="text-sm text-[#8a8a8a] mb-1">
+                  Monthly shortfall after quitting
                 </p>
+                {runway.monthlyShortfallAfterQuit > 0 ? (
+                  <>
+                    <p className="text-2xl font-semibold text-[#ff9500]">
+                      {formatCurrency(runway.monthlyShortfallAfterQuit)}
+                    </p>
+                    <p className="text-xs text-[#8a8a8a] mt-1">
+                      Your savings must cover this each month
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-semibold text-[#34c759]">
+                      Your post-quit income covers expenses!
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
+
+          <Card className="bg-white rounded-3xl border-none shadow-sm">
+            <CardContent className="p-6">
+              <p className="text-sm text-[#8a8a8a] mb-1">Savings gap</p>
+              <p className="text-3xl font-semibold text-[#1d1d1f]">
+                {formatCurrency(runway.savingsGap)}
+              </p>
+            </CardContent>
+          </Card>
 
           <Card className="bg-white rounded-3xl border-none shadow-sm">
             <CardContent className="p-6">
@@ -457,29 +488,44 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                   </Badge>
                 )}
               </div>
-              <p className="text-3xl font-semibold text-[#1d1d1f]">
-                {runway.isFunded
-                  ? "You're funded"
-                  : formatDate(runway.projectedQuitDate)}
-              </p>
-              {!runway.isFunded && runway.projectedMonthsToGoal && (
-                <p className="text-sm text-[#8a8a8a] mt-2">
-                  About {runway.projectedMonthsToGoal} months away
+              {runway.isFunded ? (
+                <p className="text-3xl font-semibold text-[#34c759]">
+                  You&apos;re funded
                 </p>
-              )}
+              ) : runway.monthlySurplus <= 0 ? (
+                <>
+                  <p className="text-2xl font-semibold text-[#ff3b30]">
+                    Can&apos;t project a date
+                  </p>
+                  <p className="text-sm text-[#8a8a8a] mt-2">
+                    Increase your salary or reduce expenses to see a projected quit date.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-semibold text-[#1d1d1f]">
+                    {formatDate(runway.projectedQuitDate)}
+                  </p>
+                  {runway.projectedMonthsToGoal && (
+                    <p className="text-sm text-[#8a8a8a] mt-2">
+                      About {runway.projectedMonthsToGoal} months away
+                    </p>
+                  )}
 
-              {!runway.isFunded && monthsSaved > 0 && (
-                <p className="text-sm text-[#8a8a8a] mt-3">
-                  If you earn{" "}
-                  <span className="font-semibold text-[#1d1d1f]">
-                    {formatCurrency(WHAT_IF_EXTRA)} more/month
-                  </span>
-                  {" "}while working, you&apos;d quit{" "}
-                  <span className="font-semibold text-[#1d1d1f]">
-                    {monthsSaved} months earlier
-                  </span>{" "}
-                  ({formatDate(whatIfRunway.projectedQuitDate)})
-                </p>
+                  {monthsSaved > 0 && (
+                    <p className="text-sm text-[#8a8a8a] mt-3">
+                      If you earn{" "}
+                      <span className="font-semibold text-[#1d1d1f]">
+                        {formatCurrency(WHAT_IF_EXTRA)} more/month
+                      </span>
+                      {" "}while working, you&apos;d quit{" "}
+                      <span className="font-semibold text-[#1d1d1f]">
+                        {monthsSaved} months earlier
+                      </span>{" "}
+                      ({formatDate(whatIfRunway.projectedQuitDate)})
+                    </p>
+                  )}
+                </>
               )}
 
               <div className="mt-6">
