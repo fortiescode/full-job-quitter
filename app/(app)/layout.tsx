@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { Sidebar } from "@/components/app/sidebar"
-import { MobileNav } from "@/components/app/mobile-nav"
+import { DashboardShell } from "@/components/app/dashboard-shell"
 
 export default async function AppLayout({
   children,
@@ -15,13 +14,5 @@ export default async function AppLayout({
     redirect("/auth/sign-in")
   }
 
-  return (
-    <div className="min-h-screen flex bg-[#f8f1de]">
-      <Sidebar />
-      <MobileNav />
-      <main className="flex-1 min-w-0 pt-24 lg:pt-0">
-        <div className="p-6 lg:p-10 max-w-7xl mx-auto">{children}</div>
-      </main>
-    </div>
-  )
+  return <DashboardShell>{children}</DashboardShell>
 }
