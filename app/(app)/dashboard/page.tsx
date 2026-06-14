@@ -142,8 +142,8 @@ export default async function DashboardPage() {
       {/* Main metrics */}
       <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${compact ? "gap-3" : "gap-5"}`}>
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <div className="flex items-start justify-between mb-1">
-            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Total savings</p>
+          <div className="mb-1">
+            <p className={`text-[#1d1d1f] font-semibold ${compact ? "text-base" : "text-lg"}`}>Total savings</p>
             <LastUpdated date={goalUpdatedAt} />
           </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
@@ -158,8 +158,8 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <div className="flex items-start justify-between mb-1">
-            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Freedom funded</p>
+          <div className="mb-1">
+            <p className={`text-[#1d1d1f] font-semibold ${compact ? "text-base" : "text-lg"}`}>Freedom funded</p>
             <LastUpdated date={goalUpdatedAt} />
           </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
@@ -171,8 +171,8 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <div className="flex items-start justify-between mb-1">
-            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Months to freedom</p>
+          <div className="mb-1">
+            <p className={`text-[#1d1d1f] font-semibold ${compact ? "text-base" : "text-lg"}`}>Months to freedom</p>
             <LastUpdated date={goalUpdatedAt} />
           </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
@@ -186,8 +186,8 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <div className="flex items-start justify-between mb-1">
-            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Active subscriptions</p>
+          <div className="mb-1">
+            <p className={`text-[#1d1d1f] font-semibold ${compact ? "text-base" : "text-lg"}`}>Active subscriptions</p>
             <LastUpdated date={subscriptionUpdatedAt} />
           </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
@@ -246,11 +246,11 @@ export default async function DashboardPage() {
 
         {/* Projected quit date — hero card */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
-          <CardContent className={`h-full flex flex-col justify-center ${compact ? "p-5" : "p-8"}`}>
-            <div className="mb-2">
-              <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Projected quit date</p>
-              <LastUpdated date={goalUpdatedAt} />
-            </div>
+          <CardHeader className={`${compact ? "pb-2" : ""}`}>
+            <CardTitle className={`${compact ? "text-base" : "text-lg"}`}>Projected quit date</CardTitle>
+            <LastUpdated date={goalUpdatedAt} />
+          </CardHeader>
+          <CardContent className={`h-full flex flex-col ${compact ? "pt-2" : ""}`}>
             <p className={`font-semibold text-[#1d1d1f] leading-tight ${compact ? "text-2xl" : "text-4xl"}`}>
               {projectedQuitDateLabel ?? "—"}
             </p>
