@@ -110,9 +110,11 @@ export type Database = {
           title: string
           description: string | null
           status: "pending" | "in_progress" | "completed"
+          category: "financial" | "career" | "personal"
           order_index: number
           created_at: string
           updated_at: string
+          completed_at: string | null
         }
         Insert: {
           id?: string
@@ -120,9 +122,11 @@ export type Database = {
           title: string
           description?: string | null
           status?: "pending" | "in_progress" | "completed"
+          category?: "financial" | "career" | "personal"
           order_index?: number
           created_at?: string
           updated_at?: string
+          completed_at?: string | null
         }
         Update: {
           id?: string
@@ -130,9 +134,11 @@ export type Database = {
           title?: string
           description?: string | null
           status?: "pending" | "in_progress" | "completed"
+          category?: "financial" | "career" | "personal"
           order_index?: number
           created_at?: string
           updated_at?: string
+          completed_at?: string | null
         }
         Relationships: [
           {

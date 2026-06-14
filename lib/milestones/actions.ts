@@ -6,13 +6,48 @@ import type { Tables } from "@/types/database"
 
 export type Milestone = Tables<"milestones">
 
-const DEFAULT_MILESTONES = [
-  { title: "Build a financial cushion", description: "Save your first 3 months of expenses.", order_index: 0 },
-  { title: "Eliminate high-interest debt", description: "Pay off credit cards and personal loans.", order_index: 1 },
-  { title: "Establish side income", description: "Earn your first $1,000 outside your day job.", order_index: 2 },
-  { title: "Reach full runway target", description: "Save enough to cover your target runway months.", order_index: 3 },
-  { title: "Practice the conversation", description: "Plan and rehearse your resignation conversation.", order_index: 4 },
-  { title: "Set your exit date", description: "Choose the day you hand in your notice.", order_index: 5 },
+const DEFAULT_MILESTONES: {
+  title: string
+  description: string | null
+  category: "financial" | "career" | "personal"
+  order_index: number
+}[] = [
+  {
+    title: "Build a financial cushion",
+    description: "Save your first 3 months of expenses.",
+    category: "financial",
+    order_index: 0,
+  },
+  {
+    title: "Eliminate high-interest debt",
+    description: "Pay off credit cards and personal loans.",
+    category: "financial",
+    order_index: 1,
+  },
+  {
+    title: "Establish side income",
+    description: "Earn your first $1,000 outside your day job.",
+    category: "financial",
+    order_index: 2,
+  },
+  {
+    title: "Reach full runway target",
+    description: "Save enough to cover your target runway months.",
+    category: "financial",
+    order_index: 3,
+  },
+  {
+    title: "Practice the conversation",
+    description: "Plan and rehearse your resignation conversation.",
+    category: "career",
+    order_index: 4,
+  },
+  {
+    title: "Set your exit date",
+    description: "Choose the day you hand in your notice.",
+    category: "career",
+    order_index: 5,
+  },
 ]
 
 export async function getMilestones(): Promise<Milestone[]> {
@@ -59,7 +94,35 @@ export async function seedDefaultMilestones() {
   return { success: true }
 }
 
-export async function toggleMilestone(id: string, currentStatus: Milestone["status"]) {
+export async function resetDefaultMilestones() {
+  const supabase = await createClient()
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData.user) {
+    return { error: "Not authenticated" }
+  }
+
+  await supabase.from("milestones").delete().eq("user_id", userData.user.id)
+
+  const milestones = DEFAULT_MILESTONES.map((m) => ({
+    ...m,
+    user_id: userData.user.id,
+  }))
+
+  const { error } = await supabase.from("milestones").insert(milestones)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath("/(app)", "layout")
+  return { success: true }
+}
+
+export async function toggleMilestone(
+  id: string,
+  currentStatus: Milestone["status"]
+) {
   const supabase = await createClient()
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
@@ -69,10 +132,16 @@ export async function toggleMilestone(id: string, currentStatus: Milestone["stat
 
   const nextStatus: Milestone["status"] =
     currentStatus === "completed" ? "pending" : "completed"
+  const completedAt: string | null =
+    nextStatus === "completed" ? new Date().toISOString() : null
 
   const { error } = await supabase
     .from("milestones")
-    .update({ status: nextStatus, updated_at: new Date().toISOString() })
+    .update({
+      status: nextStatus,
+      completed_at: completedAt,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", id)
     .eq("user_id", userData.user.id)
 
@@ -84,7 +153,11 @@ export async function toggleMilestone(id: string, currentStatus: Milestone["stat
   return { success: true }
 }
 
-export async function addMilestone(data: { title: string; description?: string }) {
+export async function addMilestone(data: {
+  title: string
+  description?: string
+  category?: Milestone["category"]
+}) {
   const supabase = await createClient()
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
@@ -104,6 +177,7 @@ export async function addMilestone(data: { title: string; description?: string }
     user_id: userData.user.id,
     title: data.title,
     description: data.description ?? null,
+    category: data.category ?? "personal",
     order_index: (existing?.order_index ?? -1) + 1,
   })
 

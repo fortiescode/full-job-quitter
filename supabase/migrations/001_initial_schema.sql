@@ -30,9 +30,11 @@ CREATE TABLE IF NOT EXISTS public.milestones (
   title TEXT NOT NULL,
   description TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
+  category TEXT NOT NULL DEFAULT 'personal' CHECK (category IN ('financial', 'career', 'personal')),
   order_index INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  completed_at TIMESTAMPTZ
 );
 
 -- Trigger function to auto-create a profile row when a user signs up
