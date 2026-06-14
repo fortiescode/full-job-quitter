@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Save, Loader2, Wallet, Briefcase, PiggyBank, TrendingUp, Calendar, Shield, Target, Umbrella } from "lucide-react"
+import { Save, Loader2, Wallet, Briefcase, PiggyBank, TrendingUp, Calendar, Shield, Target, Umbrella, ArrowRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -165,6 +165,138 @@ function NumberField({
           </span>
         )}
       </div>
+    </div>
+  )
+}
+
+interface QuitFasterTipsProps {
+  monthlySalary: number
+  monthlyExpenses: number
+  monthlySavings: number
+  postQuitIncome: number
+  postQuitExpenses: number
+  currentSavings: number
+  monthsOfSafety: number
+  currentProjectedMonths: number
+  onScenario: (changes: {
+    monthlySalary?: number
+    monthlyExpenses?: number
+    postQuitIncome?: number
+  }) => void
+}
+
+function QuitFasterTips({
+  monthlySalary,
+  monthlyExpenses,
+  monthlySavings,
+  postQuitIncome,
+  postQuitExpenses,
+  currentSavings,
+  monthsOfSafety,
+  currentProjectedMonths,
+  onScenario,
+}: QuitFasterTipsProps) {
+  // Scenario 1: save 2x current monthly savings by raising salary
+  const scenario1Salary = monthlySalary + monthlySavings
+  const scenario1Runway = calculateRunway({
+    monthlySalary: scenario1Salary,
+    monthlyExpenses,
+    currentSavings,
+    postQuitIncome,
+    monthlyExpensesAfterQuit: postQuitExpenses,
+    monthsOfSafety,
+  })
+  const scenario1MonthsSaved =
+    currentProjectedMonths - (scenario1Runway.projectedMonthsToGoal ?? currentProjectedMonths)
+
+  // Scenario 2: earn 1.5x post-quit income
+  const scenario2PostIncome = Math.round(postQuitIncome * 1.5)
+  const lessAmount = Math.max(
+    0,
+    (scenario2PostIncome - postQuitIncome) * monthsOfSafety
+  )
+
+  // Scenario 3: cut expenses by 20%
+  const scenario3Expenses = Math.round(monthlyExpenses * 0.8)
+  const scenario3Runway = calculateRunway({
+    monthlySalary,
+    monthlyExpenses: scenario3Expenses,
+    currentSavings,
+    postQuitIncome,
+    monthlyExpensesAfterQuit: postQuitExpenses,
+    monthsOfSafety,
+  })
+  const scenario3MonthsSaved =
+    currentProjectedMonths - (scenario3Runway.projectedMonthsToGoal ?? currentProjectedMonths)
+
+  return (
+    <div className="rounded-2xl bg-[#f8f1de] p-4 space-y-3">
+      <p className="text-sm font-medium text-[#1d1d1f]">How to quit faster</p>
+
+      <button
+        type="button"
+        onClick={() => onScenario({ monthlySalary: scenario1Salary })}
+        className="w-full flex items-center justify-between text-left text-sm text-[#8a8a8a] hover:text-[#1d1d1f] transition-colors group"
+      >
+        <span>
+          If you saved{" "}
+          <span className="font-medium text-[#1d1d1f]">
+            {formatCurrency(monthlySavings * 2)}/month
+          </span>
+          , you&apos;d quit{" "}
+          <span className="font-medium text-[#1d1d1f]">
+            {scenario1MonthsSaved} months earlier
+          </span>
+        </span>
+        <ArrowRight
+          size={16}
+          strokeWidth={1.75}
+          className="shrink-0 ml-2 text-[#f5c542] group-hover:translate-x-1 transition-transform"
+        />
+      </button>
+
+      {postQuitIncome < postQuitExpenses && (
+        <button
+          type="button"
+          onClick={() => onScenario({ postQuitIncome: scenario2PostIncome })}
+          className="w-full flex items-center justify-between text-left text-sm text-[#8a8a8a] hover:text-[#1d1d1f] transition-colors group"
+        >
+          <span>
+            If you earned{" "}
+            <span className="font-medium text-[#1d1d1f]">
+              {formatCurrency(scenario2PostIncome)}/month
+            </span>{" "}
+            after quitting, you&apos;d need{" "}
+            <span className="font-medium text-[#1d1d1f]">
+              {formatCurrency(lessAmount)} less
+            </span>
+          </span>
+          <ArrowRight
+            size={16}
+            strokeWidth={1.75}
+            className="shrink-0 ml-2 text-[#f5c542] group-hover:translate-x-1 transition-transform"
+          />
+        </button>
+      )}
+
+      <button
+        type="button"
+        onClick={() => onScenario({ monthlyExpenses: scenario3Expenses })}
+        className="w-full flex items-center justify-between text-left text-sm text-[#8a8a8a] hover:text-[#1d1d1f] transition-colors group"
+      >
+        <span>
+          If you cut expenses by{" "}
+          <span className="font-medium text-[#1d1d1f]">20%</span>, you&apos;d quit{" "}
+          <span className="font-medium text-[#1d1d1f]">
+            {scenario3MonthsSaved} months earlier
+          </span>
+        </span>
+        <ArrowRight
+          size={16}
+          strokeWidth={1.75}
+          className="shrink-0 ml-2 text-[#f5c542] group-hover:translate-x-1 transition-transform"
+        />
+      </button>
     </div>
   )
 }
@@ -488,17 +620,45 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                   </Badge>
                 )}
               </div>
-              {runway.isFunded ? (
-                <p className="text-3xl font-semibold text-[#34c759]">
-                  You&apos;re funded
-                </p>
+              {monthlySalary <= 0 ? (
+                <>
+                  <p className="text-2xl font-semibold text-[#ff3b30]">
+                    Enter your salary
+                  </p>
+                  <p className="text-sm text-[#8a8a8a] mt-2">
+                    Enter your monthly salary to see your quit date.
+                  </p>
+                </>
               ) : runway.monthlySurplus <= 0 ? (
                 <>
                   <p className="text-2xl font-semibold text-[#ff3b30]">
-                    Can&apos;t project a date
+                    You&apos;re spending more than you earn
                   </p>
                   <p className="text-sm text-[#8a8a8a] mt-2">
-                    Increase your salary or reduce expenses to see a projected quit date.
+                    You&apos;re spending{" "}
+                    {formatCurrency(Math.abs(runway.monthlySurplus))} more than you
+                    earn. Reduce expenses or increase income to start saving for your
+                    escape.
+                  </p>
+                </>
+              ) : runway.savingsGap <= 0 ? (
+                <>
+                  <p className="text-3xl font-semibold text-[#34c759]">
+                    You&apos;ve saved enough!
+                  </p>
+                  <p className="text-sm text-[#8a8a8a] mt-2">
+                    You&apos;re ready to plan your exit.
+                  </p>
+                </>
+              ) : runway.projectedMonthsToGoal && runway.projectedMonthsToGoal > 120 ? (
+                <>
+                  <p className="text-3xl font-semibold text-[#1d1d1f]">
+                    {formatDate(runway.projectedQuitDate)}
+                  </p>
+                  <p className="text-sm text-[#ff9500] mt-2">
+                    At this rate, you&apos;ll be ready in about{" "}
+                    {Math.ceil(runway.projectedMonthsToGoal / 12)} years. See tips
+                    below to speed things up.
                   </p>
                 </>
               ) : (
@@ -509,20 +669,6 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                   {runway.projectedMonthsToGoal && (
                     <p className="text-sm text-[#8a8a8a] mt-2">
                       About {runway.projectedMonthsToGoal} months away
-                    </p>
-                  )}
-
-                  {monthsSaved > 0 && (
-                    <p className="text-sm text-[#8a8a8a] mt-3">
-                      If you earn{" "}
-                      <span className="font-semibold text-[#1d1d1f]">
-                        {formatCurrency(WHAT_IF_EXTRA)} more/month
-                      </span>
-                      {" "}while working, you&apos;d quit{" "}
-                      <span className="font-semibold text-[#1d1d1f]">
-                        {monthsSaved} months earlier
-                      </span>{" "}
-                      ({formatDate(whatIfRunway.projectedQuitDate)})
                     </p>
                   )}
                 </>
@@ -536,6 +682,24 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
               </div>
             </CardContent>
           </Card>
+
+          {runway.monthlySurplus > 0 && runway.savingsGap > 0 && (
+            <QuitFasterTips
+              monthlySalary={monthlySalary}
+              monthlyExpenses={monthlyExpenses}
+              monthlySavings={runway.monthlySurplus}
+              postQuitIncome={postQuitIncome}
+              postQuitExpenses={postQuitExpenses}
+              currentSavings={currentSavings}
+              monthsOfSafety={monthsOfSafety}
+              currentProjectedMonths={runway.projectedMonthsToGoal ?? 0}
+              onScenario={({ monthlySalary: newSalary, monthlyExpenses: newExpenses, postQuitIncome: newPostIncome }) => {
+                if (newSalary !== undefined) setMonthlySalary(newSalary)
+                if (newExpenses !== undefined) handleMonthlyExpensesChange(newExpenses)
+                if (newPostIncome !== undefined) setPostQuitIncome(newPostIncome)
+              }}
+            />
+          )}
 
           {runway.isFunded && (
             <motion.div
