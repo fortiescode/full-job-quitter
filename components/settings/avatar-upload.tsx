@@ -2,10 +2,11 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, X, Upload, Camera } from "lucide-react"
+import { Loader2, X, Camera } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
+import { AvatarCropper } from "./avatar-cropper"
 
 interface AvatarUploadProps {
   currentAvatar: string
@@ -25,42 +26,37 @@ export function AvatarUpload({
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   function isEmoji(avatar: string) {
     return avatar && avatar.length <= 4 && /\p{Emoji}/u.test(avatar)
   }
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate file
+  function validateFile(file: File): string | null {
     if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file.")
-      return
+      return "Please upload an image file."
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be less than 5MB.")
-      return
+      return "Image must be less than 5MB."
     }
+    return null
+  }
 
-    setError(null)
+  async function uploadFile(file: File) {
     setIsUploading(true)
-
-    // Show local preview
-    const objectUrl = URL.createObjectURL(file)
-    setPreviewUrl(objectUrl)
+    setError(null)
 
     try {
       const supabase = createClient()
-      const filePath = `${userId}/${Date.now()}-${file.name.replace(/\s+/g, "-")}`
+      const filePath = `${userId}/${Date.now()}-avatar.jpg`
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
+          contentType: "image/jpeg",
         })
 
       if (uploadError) {
@@ -71,18 +67,48 @@ export function AvatarUpload({
         .from("avatars")
         .getPublicUrl(filePath)
 
-      const publicUrl = publicUrlData.publicUrl
-
-      onAvatarChange(publicUrl)
+      onAvatarChange(publicUrlData.publicUrl)
       setPreviewUrl(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed")
-      setPreviewUrl(null)
     } finally {
       setIsUploading(false)
       if (inputRef.current) {
         inputRef.current.value = ""
       }
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validationError = validateFile(file)
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
+    setError(null)
+    const objectUrl = URL.createObjectURL(file)
+    setCropImageSrc(objectUrl)
+  }
+
+  function handleCropComplete(file: File) {
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc)
+    }
+    setCropImageSrc(null)
+    uploadFile(file)
+  }
+
+  function handleCropCancel() {
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc)
+    }
+    setCropImageSrc(null)
+    if (inputRef.current) {
+      inputRef.current.value = ""
     }
   }
 
@@ -145,6 +171,14 @@ export function AvatarUpload({
           >
             {error}
           </motion.p>
+        )}
+
+        {cropImageSrc && (
+          <AvatarCropper
+            imageSrc={cropImageSrc}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+          />
         )}
       </div>
     )
@@ -210,7 +244,7 @@ export function AvatarUpload({
             <Loader2 className="animate-spin" size={18} strokeWidth={1.75} />
           ) : (
             <>
-              <Upload size={18} strokeWidth={1.75} className="mr-2" />
+              <Camera size={18} strokeWidth={1.75} className="mr-2" />
               Upload photo
             </>
           )}
@@ -226,6 +260,14 @@ export function AvatarUpload({
         >
           {error}
         </motion.p>
+      )}
+
+      {cropImageSrc && (
+        <AvatarCropper
+          imageSrc={cropImageSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
       )}
     </div>
   )

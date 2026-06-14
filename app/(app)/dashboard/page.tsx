@@ -48,12 +48,13 @@ export default async function DashboardPage() {
   const profile = userData.user
     ? await supabase
         .from("profiles")
-        .select("full_name, compact_mode")
+        .select("full_name, avatar_url, compact_mode")
         .eq("id", userData.user.id)
         .single()
     : null
 
   const fullName = profile?.data?.full_name ?? userData.user?.email?.split("@")[0] ?? ""
+  const avatarUrl = profile?.data?.avatar_url ?? ""
   const compact = profile?.data?.compact_mode ?? false
 
   const completedMilestones = milestones.filter((m) => m.status === "completed").length
@@ -106,7 +107,7 @@ export default async function DashboardPage() {
       {/* Header + status pills + live financial summary */}
       <div className={compact ? "space-y-3" : "space-y-4"}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <WelcomeHeader name={fullName} compact={compact} />
+          <WelcomeHeader name={fullName} avatarUrl={avatarUrl} compact={compact} />
           <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
             <StatPill label="Income" value={formatCurrency(monthlyIncome)} variant="default" compact={compact} />
             <StatPill label="Expenses" value={formatCurrency(totalOutflows)} variant="dark" compact={compact} />
