@@ -31,6 +31,7 @@ import {
   resetDefaultMilestones,
   toggleMilestone,
 } from "@/lib/milestones/actions"
+import { toast } from "sonner"
 import type { Milestone } from "@/lib/milestones/actions"
 
 interface MilestoneListProps {
@@ -91,6 +92,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
     setPendingId("reset")
     startTransition(async () => {
       await resetDefaultMilestones()
+      toast.success("Milestones reset to recommended")
       setPendingId(null)
     })
   }
@@ -99,6 +101,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
     setPendingId(id)
     startTransition(async () => {
       await toggleMilestone(id, status)
+      toast.success(status === "completed" ? "Milestone reopened" : "Milestone completed")
       setPendingId(null)
     })
   }
@@ -117,6 +120,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
 
     startTransition(async () => {
       await addMilestone({ title, description, category })
+      toast.success("Milestone added")
       setTitle("")
       setDescription("")
       setCategory("personal")

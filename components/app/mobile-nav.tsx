@@ -29,6 +29,7 @@ const navItems = [
 export function MobileNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const isSettingsActive = pathname === "/settings" || pathname.startsWith("/settings/")
 
   return (
     <>
@@ -88,11 +89,11 @@ export function MobileNav() {
                   return (
                     <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
                       <Button
-                        variant={isActive ? "secondary" : "ghost"}
-                        className={`w-full justify-start gap-3 h-12 rounded-xl ${
+                        variant="ghost"
+                        className={`w-full justify-start gap-3 h-12 rounded-r-xl rounded-l-none border-l-[3px] transition-colors ${
                           isActive
-                            ? "bg-[#f5c542]/20 text-[#1d1d1f] hover:bg-[#f5c542]/25"
-                            : "text-[#1d1d1f] hover:bg-white/50"
+                            ? "bg-white text-[#1d1d1f] border-[#f5c542]"
+                            : "text-[#1d1d1f] hover:bg-white/50 border-transparent"
                         }`}
                       >
                         <item.icon size={18} strokeWidth={1.75} />
@@ -109,7 +110,11 @@ export function MobileNav() {
                 <Link href="/settings" onClick={() => setOpen(false)}>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start gap-3 h-12 rounded-xl text-[#1d1d1f] hover:bg-white/50"
+                    className={`w-full justify-start gap-3 h-12 rounded-r-xl rounded-l-none border-l-[3px] transition-colors ${
+                      isSettingsActive
+                        ? "bg-white text-[#1d1d1f] border-[#f5c542]"
+                        : "text-[#1d1d1f] hover:bg-white/50 border-transparent"
+                    }`}
                   >
                     <Settings size={18} strokeWidth={1.75} />
                     Settings

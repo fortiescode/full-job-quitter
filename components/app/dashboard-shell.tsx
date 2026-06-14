@@ -4,6 +4,7 @@ import { useCallback, useSyncExternalStore } from "react"
 import { Sidebar } from "./sidebar"
 import { MobileNav } from "./mobile-nav"
 import { OnboardingTour } from "./onboarding-tour"
+import { Toaster } from "@/components/ui/sonner"
 
 const COLLAPSED_KEY = "sidebar-collapsed"
 
@@ -36,6 +37,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <Sidebar collapsed={collapsed} onCollapseChange={handleCollapseChange} />
       <MobileNav />
       <OnboardingTour />
+      <Toaster />
       <main
         className={`min-w-0 pt-24 transition-[margin] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
           collapsed ? "lg:ml-[7rem]" : "lg:ml-[20rem]"

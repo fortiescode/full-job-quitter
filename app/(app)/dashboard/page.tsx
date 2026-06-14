@@ -21,7 +21,9 @@ import { SavingsProjectionChart } from "@/components/dashboard/savings-projectio
 import { MilestoneTimeline } from "@/components/dashboard/milestone-timeline"
 import { UpcomingMilestones } from "@/components/dashboard/upcoming-milestones"
 import { FinancialSummaryBar } from "@/components/dashboard/financial-summary-bar"
+import { LastUpdated } from "@/components/dashboard/last-updated"
 import { getFinancialGoal } from "@/lib/financial/actions"
+import { latestTimestamp } from "@/lib/time"
 import { getMilestones } from "@/lib/milestones/actions"
 import {
   getCategories,
@@ -66,6 +68,11 @@ export default async function DashboardPage() {
   const totalSubscriptions = subscriptions.reduce((sum, s) => sum + Number(s.amount), 0)
   const totalLoanPayments = loans.reduce((sum, l) => sum + Number(l.monthly_payment), 0)
   const totalOutflows = totalExpenses + totalSubscriptions + totalLoanPayments
+
+  const goalUpdatedAt = goal?.updated_at
+  const subscriptionUpdatedAt = latestTimestamp([...subscriptions, ...loans])
+  const expenseUpdatedAt = latestTimestamp([...expenses, ...categories])
+  const milestoneUpdatedAt = latestTimestamp(milestones)
 
   const monthlyIncome = Number(goal?.monthly_income) || 0
   const netSavings = monthlyIncome - totalOutflows
@@ -131,7 +138,10 @@ export default async function DashboardPage() {
       {/* Main metrics */}
       <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${compact ? "gap-3" : "gap-5"}`}>
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Total savings</p>
+          <div className="flex items-start justify-between mb-1">
+            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Total savings</p>
+            <LastUpdated date={goalUpdatedAt} />
+          </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {formatCurrency(Number(goal?.current_savings) || 0)}
           </p>
@@ -144,7 +154,10 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Freedom funded</p>
+          <div className="flex items-start justify-between mb-1">
+            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Freedom funded</p>
+            <LastUpdated date={goalUpdatedAt} />
+          </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {formatNumber(fundingProgress, 1)}%
           </p>
@@ -154,7 +167,10 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Months to freedom</p>
+          <div className="flex items-start justify-between mb-1">
+            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Months to freedom</p>
+            <LastUpdated date={goalUpdatedAt} />
+          </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {runway?.projectedMonthsToGoal ?? "—"}
           </p>
@@ -166,7 +182,10 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className={`bg-white rounded-3xl border-none shadow-sm ${compact ? "p-3" : "p-6"}`}>
-          <p className={`text-[#8a8a8a] mb-1 ${compact ? "text-xs" : "text-sm"}`}>Active subscriptions</p>
+          <div className="flex items-start justify-between mb-1">
+            <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Active subscriptions</p>
+            <LastUpdated date={subscriptionUpdatedAt} />
+          </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
             {subscriptions.length}
           </p>
@@ -208,6 +227,7 @@ export default async function DashboardPage() {
               <TrendingUp size={compact ? 16 : 18} strokeWidth={1.75} />
               Savings projection
             </CardTitle>
+            <LastUpdated date={goalUpdatedAt} />
           </CardHeader>
           <CardContent className={compact ? "pt-2" : ""}>
             <SavingsProjectionChart
@@ -223,7 +243,10 @@ export default async function DashboardPage() {
         {/* Projected quit date — hero card */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
           <CardContent className={`h-full flex flex-col justify-center ${compact ? "p-5" : "p-8"}`}>
-            <p className={`text-[#8a8a8a] mb-2 ${compact ? "text-xs" : "text-sm"}`}>Projected quit date</p>
+            <div className="flex items-start justify-between mb-2">
+              <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Projected quit date</p>
+              <LastUpdated date={goalUpdatedAt} />
+            </div>
             <p className={`font-semibold text-[#1d1d1f] leading-tight ${compact ? "text-2xl" : "text-4xl"}`}>
               {projectedQuitDateLabel ?? "—"}
             </p>
@@ -250,11 +273,14 @@ export default async function DashboardPage() {
               <Receipt size={compact ? 16 : 18} strokeWidth={1.75} />
               Expense breakdown
             </CardTitle>
-            <Link href="/finances">
-              <Button variant="ghost" className={`rounded-xl text-[#8a8a8a] ${compact ? "h-8 text-sm" : ""}`}>
-                Manage
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <LastUpdated date={expenseUpdatedAt} />
+              <Link href="/finances">
+                <Button variant="ghost" className={`rounded-xl text-[#8a8a8a] ${compact ? "h-8 text-sm" : ""}`}>
+                  Manage
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent className={compact ? "pt-2" : ""}>
             <ExpenseBarChart categories={categories} expensesByCategory={expensesByCategory} compact={compact} />
@@ -262,11 +288,12 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
-          <CardHeader className={compact ? "pb-2" : ""}>
+          <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Target size={compact ? 16 : 18} strokeWidth={1.75} />
               Milestone timeline
             </CardTitle>
+            <LastUpdated date={milestoneUpdatedAt} />
           </CardHeader>
           <CardContent className={compact ? "pt-2" : ""}>
             <MilestoneTimeline milestones={milestones} compact={compact} />
@@ -274,11 +301,12 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
-          <CardHeader className={compact ? "pb-2" : ""}>
+          <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Route size={compact ? 16 : 18} strokeWidth={1.75} />
               Next milestones
             </CardTitle>
+            <LastUpdated date={milestoneUpdatedAt} />
           </CardHeader>
           <CardContent className={compact ? "pt-2" : ""}>
             <UpcomingMilestones milestones={milestones} compact={compact} />
@@ -300,6 +328,7 @@ export default async function DashboardPage() {
               <TrendingDown size={compact ? 16 : 18} strokeWidth={1.75} />
               Recent expenses
             </CardTitle>
+            <LastUpdated date={expenseUpdatedAt} />
           </CardHeader>
           <CardContent className={compact ? "pt-2" : ""}>
             <RecentExpenses expenses={expenses} categories={categories} compact={compact} />
@@ -307,11 +336,12 @@ export default async function DashboardPage() {
         </Card>
 
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
-          <CardHeader className={compact ? "pb-2" : ""}>
+          <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Calendar size={compact ? 16 : 18} strokeWidth={1.75} />
               Target timeline
             </CardTitle>
+            <LastUpdated date={goalUpdatedAt} />
           </CardHeader>
           <CardContent className={compact ? "space-y-4 pt-2" : "space-y-6"}>
             <div className="flex items-center justify-between">
@@ -349,11 +379,14 @@ export default async function DashboardPage() {
             <Route size={compact ? 16 : 18} strokeWidth={1.75} />
             Your roadmap
           </CardTitle>
-          <Link href="/milestones">
-            <Button variant="ghost" className={`rounded-xl text-[#8a8a8a] ${compact ? "h-8 text-sm" : ""}`}>
-              View all
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <LastUpdated date={milestoneUpdatedAt} />
+            <Link href="/milestones">
+              <Button variant="ghost" className={`rounded-xl text-[#8a8a8a] ${compact ? "h-8 text-sm" : ""}`}>
+                View all
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         <CardContent className={compact ? "pt-2" : ""}>
           {milestones.length === 0 ? (

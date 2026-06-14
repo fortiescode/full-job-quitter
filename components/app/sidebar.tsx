@@ -28,8 +28,52 @@ interface SidebarProps {
   onCollapseChange: (collapsed: boolean) => void
 }
 
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  collapsed,
+}: {
+  href: string
+  label: string
+  icon: React.ElementType
+  collapsed: boolean
+}) {
+  const pathname = usePathname()
+  const isActive = pathname === href || pathname.startsWith(`${href}/`)
+
+  return (
+    <Link key={href} href={href} title={label}>
+      <Button
+        variant="ghost"
+        className={`relative w-full h-11 rounded-r-xl rounded-l-none transition-all duration-200 border-l-[3px] ${
+          isActive
+            ? "bg-[#f5f5f5] text-[#1d1d1f] border-[#f5c542]"
+            : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
+        } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"}`}
+      >
+        <Icon size={20} strokeWidth={1.75} className="shrink-0" />
+        <AnimatePresence mode="wait" initial={false}>
+          {!collapsed && (
+            <motion.span
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.15 }}
+              className="font-medium whitespace-nowrap"
+            >
+              {label}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </Button>
+    </Link>
+  )
+}
+
 export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
   const pathname = usePathname()
+  const isSettingsActive = pathname === "/settings" || pathname.startsWith("/settings/")
 
   return (
     <motion.aside
@@ -85,41 +129,9 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`)
-
-            return (
-              <Link key={item.href} href={item.href} title={item.label}>
-                <Button
-                  variant="ghost"
-                  className={`relative w-full h-11 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? "bg-[#f5c542]/20 text-[#1d1d1f]"
-                      : "text-[#1d1d1f] hover:bg-[#f8f1de]"
-                  } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"}`}
-                >
-                  <item.icon size={20} strokeWidth={1.75} className="shrink-0" />
-                  <AnimatePresence mode="wait" initial={false}>
-                    {!collapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -8 }}
-                        transition={{ duration: 0.15 }}
-                        className="font-medium whitespace-nowrap"
-                      >
-                        {item.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                  {isActive && collapsed && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#f5c542] rounded-r-full" />
-                  )}
-                </Button>
-              </Link>
-            )
-          })}
+          {navItems.map((item) => (
+            <NavLink key={item.href} {...item} collapsed={collapsed} />
+          ))}
         </nav>
 
         {/* Collapse / expand toggle */}
@@ -161,9 +173,11 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
           <Link href="/settings" title="Settings">
             <Button
               variant="ghost"
-              className={`w-full h-11 rounded-xl text-[#1d1d1f] hover:bg-[#f8f1de] transition-all duration-200 ${
-                collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"
-              }`}
+              className={`w-full h-11 rounded-r-xl rounded-l-none transition-all duration-200 border-l-[3px] ${
+                isSettingsActive
+                  ? "bg-[#f5f5f5] text-[#1d1d1f] border-[#f5c542]"
+                  : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
+              } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"}`}
             >
               <Settings size={20} strokeWidth={1.75} className="shrink-0" />
               <AnimatePresence mode="wait" initial={false}>

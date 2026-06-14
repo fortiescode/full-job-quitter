@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select"
 import { formatCurrency } from "@/lib/calculator/utils"
 import { upsertFinancialGoal } from "@/lib/financial/actions"
+import { toast } from "sonner"
 import type { FinancialGoal } from "@/lib/financial/actions"
 import {
   addCategory,
@@ -131,6 +132,7 @@ export function FinanceManager({
   function handleSaveIncome() {
     startTransition(async () => {
       await upsertFinancialGoal({ monthly_income: monthlyIncome })
+      toast.success("Finances saved")
     })
   }
 
@@ -143,6 +145,7 @@ export function FinanceManager({
         color: categoryColor,
         budget_limit: Number(categoryBudget) || 0,
       })
+      toast.success("Category added")
       setCategoryName("")
       setCategoryBudget("")
     })
@@ -159,6 +162,7 @@ export function FinanceManager({
         expense_date: expenseDate,
         is_recurring: expenseRecurring,
       })
+      toast.success("Expense added")
       setExpenseName("")
       setExpenseAmount("")
       setExpenseRecurring(false)
@@ -175,6 +179,7 @@ export function FinanceManager({
         frequency: subFrequency,
         next_due_date: subDueDate,
       })
+      toast.success("Subscription added")
       setSubName("")
       setSubAmount("")
       setSubDueDate("")
@@ -193,6 +198,7 @@ export function FinanceManager({
         interest_rate: Number(loanRate) || 0,
         due_date: loanDueDate,
       })
+      toast.success("Loan added")
       setLoanName("")
       setLoanTotal("")
       setLoanRemaining("")

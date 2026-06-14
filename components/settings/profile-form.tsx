@@ -26,10 +26,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { AvatarUpload } from "./avatar-upload"
 import { updateProfile, updateEscapePlan } from "@/lib/profile/actions"
 import type { Tables } from "@/types/database"
 import { formatCurrency } from "@/lib/calculator/utils"
+import { toast } from "sonner"
 
 type Profile = Tables<"profiles">
 type FinancialGoal = Tables<"financial_goals">
@@ -103,7 +105,10 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
     setTimeout(() => setSavedSection(null), 3000)
   }
 
-  function handleSaveProfile(e: React.FormEvent) {
+  function handleSaveProfile(
+    e: React.FormEvent,
+    message = "Identity updated"
+  ) {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
@@ -118,6 +123,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
         setError(result.error)
         return
       }
+      toast.success(message)
       showSaved("profile")
     })
   }
@@ -136,6 +142,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
         setError(result.error)
         return
       }
+      toast.success("Escape plan saved")
       showSaved("escape")
     })
   }
@@ -152,6 +159,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
         setError(result.error)
         return
       }
+      toast.success("Preferences saved")
       showSaved("preferences")
     })
   }
@@ -182,25 +190,41 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <p className="text-xs text-[#1d1d1f]/60 text-center">Pick an emoji</p>
-              <div className="grid grid-cols-5 gap-1.5">
-                {AVATAR_OPTIONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setAvatarUrl(emoji)}
-                    className={`w-8 h-8 rounded-lg text-lg flex items-center justify-center transition-all ${
-                      avatarUrl === emoji
-                        ? "bg-white scale-110 shadow-sm"
-                        : "bg-[#1d1d1f]/10 hover:bg-white/50"
-                    }`}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Pick an emoji"
+                  className="h-9 w-9 rounded-full border-none bg-white/70 hover:bg-white shadow-sm text-xl flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                >
+                  {isEmoji(avatarUrl) ? avatarUrl : "😀"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="bottom"
+                align="center"
+                sideOffset={8}
+                className="w-auto rounded-2xl border-none bg-white p-2 shadow-xl"
+              >
+                <div className="grid grid-cols-5 gap-1">
+                  {AVATAR_OPTIONS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => setAvatarUrl(emoji)}
+                      className={`h-8 w-8 rounded-lg text-xl flex items-center justify-center transition-all ${
+                        avatarUrl === emoji
+                          ? "bg-[#f5c542]/30 ring-1 ring-[#f5c542] scale-110"
+                          : "hover:bg-[#f8f1de]"
+                      }`}
+                    >
+                      <span className="sr-only">{emoji}</span>
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="text-center md:text-left md:pt-2">
@@ -230,7 +254,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSaveProfile} className="space-y-6">
+              <form onSubmit={(e) => handleSaveProfile(e, "Identity updated")} className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-[#1d1d1f]">Full name</Label>
                   <Input
@@ -359,7 +383,8 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
                     className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
                   />
                   <p className="text-xs text-[#8a8a8a]">
-                    How much you expect to earn monthly after quitting.
+                    How much you expect to earn monthly after quitting
+                    (freelancing, side income, etc.)
                   </p>
                 </div>
 
@@ -413,7 +438,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSaveProfile} className="space-y-6">
+              <form onSubmit={(e) => handleSaveProfile(e, "Motivation saved")} className="space-y-6">
                 <Textarea
                   value={whyQuit}
                   onChange={(e) => setWhyQuit(e.target.value)}
