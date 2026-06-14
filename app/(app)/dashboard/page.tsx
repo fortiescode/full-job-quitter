@@ -2,12 +2,12 @@ import Link from "next/link"
 import {
   Wallet,
   TrendingDown,
-  
   Calendar,
   ArrowUpRight,
   Target,
   Route,
   Receipt,
+  TrendingUp,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -15,10 +15,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { WelcomeHeader } from "@/components/dashboard/welcome-header"
 import { StatPill } from "@/components/dashboard/stat-pill"
 import { ExpenseBarChart } from "@/components/dashboard/expense-bar-chart"
-import { CircularProgress } from "@/components/dashboard/circular-progress"
 import { SubscriptionLoanCard } from "@/components/dashboard/subscription-loan-card"
 import { RecentExpenses } from "@/components/dashboard/recent-expenses"
-import { MilestoneMiniList } from "@/components/dashboard/milestone-mini-list"
+import { SavingsProjectionChart } from "@/components/dashboard/savings-projection-chart"
+import { MilestoneTimeline } from "@/components/dashboard/milestone-timeline"
+import { UpcomingMilestones } from "@/components/dashboard/upcoming-milestones"
+import { FinancialSummaryBar } from "@/components/dashboard/financial-summary-bar"
 import { getFinancialGoal } from "@/lib/financial/actions"
 import { getMilestones } from "@/lib/milestones/actions"
 import {
@@ -86,22 +88,43 @@ export default async function DashboardPage() {
     ? Math.min((Number(goal.current_savings) / runway.requiredSavings) * 100, 100)
     : 0
 
+  const projectedQuitDateLabel = runway?.projectedQuitDate
+    ? runway.projectedQuitDate.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    : null
+
+  const monthsAway = runway?.projectedMonthsToGoal
+    ? `About ${runway.projectedMonthsToGoal} months away`
+    : runway?.isFunded
+      ? "You're fully funded"
+      : "Add your finances to project a date"
+
   return (
     <div className={compact ? "space-y-5" : "space-y-8"}>
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <WelcomeHeader name={fullName} compact={compact} />
-        <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
-          <StatPill label="Income" value={formatCurrency(monthlyIncome)} variant="default" compact={compact} />
-          <StatPill label="Expenses" value={formatCurrency(totalOutflows)} variant="dark" compact={compact} />
-          <StatPill label="Net savings" value={formatCurrency(netSavings)} variant="accent" compact={compact} />
-          <StatPill
-            label="Runway"
-            value={`${formatNumber(runway?.currentRunwayMonths ?? 0, 1)} mo`}
-            variant="default"
-            compact={compact}
-          />
+      {/* Header + status pills + live financial summary */}
+      <div className={compact ? "space-y-3" : "space-y-4"}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <WelcomeHeader name={fullName} compact={compact} />
+          <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
+            <StatPill label="Income" value={formatCurrency(monthlyIncome)} variant="default" compact={compact} />
+            <StatPill label="Expenses" value={formatCurrency(totalOutflows)} variant="dark" compact={compact} />
+            <StatPill label="Net savings" value={formatCurrency(netSavings)} variant="accent" compact={compact} />
+            <StatPill
+              label="Runway"
+              value={`${formatNumber(runway?.currentRunwayMonths ?? 0, 1)} mo`}
+              variant="default"
+              compact={compact}
+            />
+          </div>
         </div>
+        <FinancialSummaryBar
+          income={monthlyIncome}
+          expenses={totalExpenses}
+          obligations={totalSubscriptions + totalLoanPayments}
+          compact={compact}
+        />
       </div>
 
       {/* Main metrics */}
@@ -152,9 +175,9 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      {/* Grid */}
+      {/* Escape fund + projection + quit date */}
       <div className={`grid grid-cols-1 lg:grid-cols-12 ${compact ? "gap-3" : "gap-5"}`}>
-        {/* Welcome / profile card */}
+        {/* Escape fund CTA */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-[#f5c542] rounded-3xl border-none shadow-sm overflow-hidden">
           <CardContent className={`h-full flex flex-col justify-between ${compact ? "p-5" : "p-8"}`}>
             <div>
@@ -177,8 +200,50 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Expense breakdown */}
+        {/* Savings projection chart */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-5 bg-white rounded-3xl border-none shadow-sm">
+          <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
+            <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
+              <TrendingUp size={compact ? 16 : 18} strokeWidth={1.75} />
+              Savings projection
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={compact ? "pt-2" : ""}>
+            <SavingsProjectionChart
+              currentSavings={Number(goal?.current_savings) || 0}
+              monthlySurplus={runway?.monthlySurplus ?? 0}
+              requiredSavings={runway?.requiredSavings ?? 0}
+              projectedMonthsToGoal={runway?.projectedMonthsToGoal ?? null}
+              compact={compact}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Projected quit date — hero card */}
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
+          <CardContent className={`h-full flex flex-col justify-center ${compact ? "p-5" : "p-8"}`}>
+            <p className={`text-[#8a8a8a] mb-2 ${compact ? "text-xs" : "text-sm"}`}>Projected quit date</p>
+            <p className={`font-semibold text-[#1d1d1f] leading-tight ${compact ? "text-2xl" : "text-4xl"}`}>
+              {projectedQuitDateLabel ?? "—"}
+            </p>
+            <p className={`text-[#8a8a8a] mt-2 ${compact ? "text-xs" : "text-sm"}`}>{monthsAway}</p>
+
+            <div className={`h-1.5 bg-[#f8f1de] rounded-full overflow-hidden ${compact ? "mt-4" : "mt-6"}`}>
+              <div
+                className="h-full bg-[#f5c542] rounded-full"
+                style={{ width: `${milestoneProgress}%` }}
+              />
+            </div>
+            <p className={`text-[#8a8a8a] mt-2 ${compact ? "text-[10px]" : "text-xs"}`}>
+              {formatNumber(milestoneProgress, 0)}% milestones complete
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Expense breakdown + milestone timeline + upcoming milestones */}
+      <div className={`grid grid-cols-1 lg:grid-cols-12 ${compact ? "gap-3" : "gap-5"}`}>
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Receipt size={compact ? 16 : 18} strokeWidth={1.75} />
@@ -195,36 +260,39 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Milestone progress */}
-        <Card size={compact ? "compact" : "default"} className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={compact ? "pb-2" : ""}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
               <Target size={compact ? 16 : 18} strokeWidth={1.75} />
-              Milestones
+              Milestone timeline
             </CardTitle>
           </CardHeader>
-          <CardContent className={`flex flex-col items-center ${compact ? "pt-2" : ""}`}>
-            <CircularProgress
-              value={milestoneProgress}
-              label={`${completedMilestones}/${milestones.length}`}
-              sublabel="completed"
-              size={compact ? 112 : 140}
-              strokeWidth={compact ? 10 : 12}
-            />
-            <div className={`w-full ${compact ? "mt-4" : "mt-6"}`}>
-              <MilestoneMiniList milestones={milestones} compact={compact} />
-            </div>
+          <CardContent className={compact ? "pt-2" : ""}>
+            <MilestoneTimeline milestones={milestones} compact={compact} />
           </CardContent>
         </Card>
 
-        {/* Subscriptions & loans dark card */}
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
+          <CardHeader className={compact ? "pb-2" : ""}>
+            <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
+              <Route size={compact ? 16 : 18} strokeWidth={1.75} />
+              Next milestones
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={compact ? "pt-2" : ""}>
+            <UpcomingMilestones milestones={milestones} compact={compact} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Subscriptions/loans + recent expenses + target details */}
+      <div className={`grid grid-cols-1 lg:grid-cols-12 ${compact ? "gap-3" : "gap-5"}`}>
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-[#1d1d1f] rounded-3xl border-none shadow-sm">
           <CardContent className="h-full">
             <SubscriptionLoanCard subscriptions={subscriptions} loans={loans} compact={compact} />
           </CardContent>
         </Card>
 
-        {/* Recent expenses */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
@@ -237,7 +305,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Calendar / projected quit date */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-white rounded-3xl border-none shadow-sm">
           <CardHeader className={compact ? "pb-2" : ""}>
             <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>
@@ -264,24 +331,17 @@ export default async function DashboardPage() {
                 {formatNumber(runway?.currentRunwayMonths ?? 0, 1)} months
               </span>
             </div>
-            <div className={`bg-[#f8f1de] rounded-2xl flex items-center justify-center ${compact ? "h-20" : "h-24"}`}>
-              <div className="text-center">
-                <p className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>Projected quit date</p>
-                <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-xl" : "text-2xl"}`}>
-                  {runway?.projectedQuitDate
-                    ? runway.projectedQuitDate.toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "—"}
-                </p>
-              </div>
+            <div className="flex items-center justify-between">
+              <span className={`text-[#8a8a8a] ${compact ? "text-sm" : ""}`}>Monthly surplus</span>
+              <span className={`font-semibold ${(runway?.monthlySurplus ?? 0) >= 0 ? "text-[#34c759]" : "text-[#ff3b30]"} ${compact ? "text-sm" : ""}`}>
+                {formatCurrency(runway?.monthlySurplus ?? 0)}
+              </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Milestones section */}
+      {/* Roadmap */}
       <Card size={compact ? "compact" : "default"} className="bg-white rounded-3xl border-none shadow-sm">
         <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
           <CardTitle className={`font-semibold text-[#1d1d1f] flex items-center gap-2 ${compact ? "text-base" : "text-lg"}`}>

@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Calculator,
   Route,
-  BarChart3,
   Wallet,
   Menu,
   X,
@@ -24,7 +23,6 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/calculator", label: "Calculator", icon: Calculator },
   { href: "/milestones", label: "Milestones", icon: Route },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/finances", label: "Finances", icon: Wallet },
 ]
 
