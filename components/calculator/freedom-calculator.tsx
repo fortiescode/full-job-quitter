@@ -16,9 +16,50 @@ import type { FinancialGoal } from "@/lib/financial/actions"
 
 interface FreedomCalculatorProps {
   initialGoal: FinancialGoal | null
+  riskTolerance: "conservative" | "moderate" | "aggressive" | null
 }
 
-export function FreedomCalculator({ initialGoal }: FreedomCalculatorProps) {
+const WHAT_IF_EXTRA = 500
+
+function formatDate(date: Date | null): string {
+  if (!date) return "—"
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" })
+}
+
+function ProjectionBars({
+  currentSavings,
+  requiredSavings,
+}: {
+  currentSavings: number
+  requiredSavings: number
+}) {
+  const bars = Array.from({ length: 6 }, (_, i) => {
+    const progress = i / 5
+    const value = currentSavings + (requiredSavings - currentSavings) * progress
+    const clampedValue = Math.max(0, Math.min(value, requiredSavings))
+    const heightPercent = requiredSavings > 0 ? (clampedValue / requiredSavings) * 100 : 0
+    return { value: clampedValue, heightPercent, isProjected: i >= 3 }
+  })
+
+  return (
+    <div className="flex items-end justify-between gap-2 h-24">
+      {bars.map((bar, index) => (
+        <motion.div
+          key={index}
+          initial={{ height: 0 }}
+          animate={{ height: `${Math.max(bar.heightPercent, 8)}%` }}
+          transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
+          className={`flex-1 rounded-t-lg ${
+            bar.isProjected ? "bg-[#f5c542]" : "bg-[#d4d0c5]"
+          }`}
+          title={formatCurrency(bar.value)}
+        />
+      ))}
+    </div>
+  )
+}
+
+export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalculatorProps) {
   const [monthlyExpenses, setMonthlyExpenses] = useState(
     Number(initialGoal?.monthly_expenses) || 3000
   )
@@ -40,6 +81,26 @@ export function FreedomCalculator({ initialGoal }: FreedomCalculatorProps) {
     monthlySavingsRate,
     targetRunwayMonths,
   })
+
+  const whatIfRunway = calculateRunway({
+    monthlyExpenses,
+    currentSavings,
+    monthlySavingsRate: monthlySavingsRate + WHAT_IF_EXTRA,
+    targetRunwayMonths,
+  })
+
+  const monthsSaved =
+    runway.projectedMonthsToGoal && whatIfRunway.projectedMonthsToGoal
+      ? runway.projectedMonthsToGoal - whatIfRunway.projectedMonthsToGoal
+      : 0
+
+  const riskConfig = {
+    conservative: { label: "Conservative plan", className: "bg-[#e8e0cc] text-[#1d1d1f] hover:bg-[#e8e0cc]/80" },
+    moderate: { label: "Moderate plan", className: "bg-[#f5c542] text-[#1d1d1f] hover:bg-[#f5c542]/80" },
+    aggressive: { label: "Aggressive plan", className: "bg-[#ff9500] text-white hover:bg-[#ff9500]/80" },
+  }
+
+  const riskBadge = riskTolerance ? riskConfig[riskTolerance] : null
 
   function handleSave() {
     setSaved(false)
@@ -229,22 +290,45 @@ export function FreedomCalculator({ initialGoal }: FreedomCalculatorProps) {
 
           <Card className="bg-white rounded-3xl border-none shadow-sm">
             <CardContent className="p-6">
-              <p className="text-sm text-[#8a8a8a] mb-1">Projected quit date</p>
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <p className="text-sm text-[#8a8a8a]">Projected quit date</p>
+                {riskBadge && (
+                  <Badge className={`rounded-full text-xs font-medium ${riskBadge.className}`}>
+                    {riskBadge.label}
+                  </Badge>
+                )}
+              </div>
               <p className="text-3xl font-semibold text-[#1d1d1f] ">
                 {runway.isFunded
-                  ? "You&apos;re funded"
-                  : runway.projectedQuitDate
-                  ? runway.projectedQuitDate.toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : "Need positive monthly surplus"}
+                  ? "You're funded"
+                  : formatDate(runway.projectedQuitDate)}
               </p>
               {!runway.isFunded && runway.projectedMonthsToGoal && (
                 <p className="text-sm text-[#8a8a8a] mt-2">
                   About {runway.projectedMonthsToGoal} months away
                 </p>
               )}
+
+              {!runway.isFunded && monthsSaved > 0 && (
+                <p className="text-sm text-[#8a8a8a] mt-3">
+                  If you save{" "}
+                  <span className="font-semibold text-[#1d1d1f]">
+                    {formatCurrency(WHAT_IF_EXTRA)} more/month
+                  </span>
+                  , you&apos;d quit{" "}
+                  <span className="font-semibold text-[#1d1d1f]">
+                    {monthsSaved} months earlier
+                  </span>{" "}
+                  ({formatDate(whatIfRunway.projectedQuitDate)})
+                </p>
+              )}
+
+              <div className="mt-6">
+                <ProjectionBars
+                  currentSavings={currentSavings}
+                  requiredSavings={runway.requiredSavings}
+                />
+              </div>
             </CardContent>
           </Card>
 
