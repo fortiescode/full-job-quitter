@@ -2,19 +2,26 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, X, Upload } from "lucide-react"
+import { Loader2, X, Upload, Camera } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
-import { updateProfile } from "@/lib/profile/actions"
 
 interface AvatarUploadProps {
   currentAvatar: string
   onAvatarChange: (url: string) => void
   userId: string
+  previewClassName?: string
+  compact?: boolean
 }
 
-export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUploadProps) {
+export function AvatarUpload({
+  currentAvatar,
+  onAvatarChange,
+  userId,
+  previewClassName = "bg-[#f8f1de]",
+  compact = false,
+}: AvatarUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -66,12 +73,6 @@ export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUp
 
       const publicUrl = publicUrlData.publicUrl
 
-      // Update profile in database
-      const result = await updateProfile({ avatar_url: publicUrl })
-      if (result.error) {
-        throw new Error(result.error)
-      }
-
       onAvatarChange(publicUrl)
       setPreviewUrl(null)
     } catch (err) {
@@ -88,7 +89,6 @@ export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUp
   async function handleRemovePhoto() {
     if (isEmoji(currentAvatar)) {
       onAvatarChange("")
-      await updateProfile({ avatar_url: "" })
       return
     }
 
@@ -103,7 +103,6 @@ export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUp
         await supabase.storage.from("avatars").remove([filePath])
       }
 
-      await updateProfile({ avatar_url: "" })
       onAvatarChange("")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove avatar")
@@ -114,10 +113,52 @@ export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUp
 
   const displayAvatar = previewUrl || currentAvatar
 
+  if (compact) {
+    return (
+      <div className="space-y-2">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
+          className="w-9 h-9 rounded-full bg-white text-[#1d1d1f] shadow-md flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-70"
+          title="Upload photo"
+        >
+          {isUploading ? (
+            <Loader2 className="animate-spin" size={16} strokeWidth={1.75} />
+          ) : (
+            <Camera size={16} strokeWidth={1.75} />
+          )}
+        </button>
+
+        {error && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-xs text-[#ff3b30] text-center"
+          >
+            {error}
+          </motion.p>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className="relative inline-block">
-        <div className="w-28 h-28 rounded-3xl overflow-hidden bg-[#f8f1de] border-4 border-white shadow-lg flex items-center justify-center">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
+          className={`w-28 h-28 rounded-3xl overflow-hidden border-4 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-[1.02] disabled:opacity-70 ${previewClassName}`}
+        >
           {displayAvatar ? (
             isEmoji(displayAvatar) ? (
               <span className="text-5xl">{displayAvatar}</span>
@@ -129,11 +170,9 @@ export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUp
               />
             )
           ) : (
-            <span className="text-4xl font-semibold text-[#1d1d1f]">
-              ?
-            </span>
+            <span className="text-4xl font-semibold text-[#1d1d1f]">?</span>
           )}
-        </div>
+        </button>
 
         <AnimatePresence>
           {(currentAvatar && !isEmoji(currentAvatar)) || previewUrl ? (
@@ -152,7 +191,7 @@ export function AvatarUpload({ currentAvatar, onAvatarChange, userId }: AvatarUp
         </AnimatePresence>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <input
           ref={inputRef}
           type="file"

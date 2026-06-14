@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { AvatarUpload } from "./avatar-upload"
 import { updateProfile, updateEscapePlan } from "@/lib/profile/actions"
@@ -42,6 +42,10 @@ interface ProfileFormProps {
 }
 
 const AVATAR_OPTIONS = ["🏖️", "🚀", "🌴", "💼", "🎯", "🦁", "🐼", "🦊", "🐱", "🐶"]
+
+function isEmoji(avatar: string) {
+  return avatar && avatar.length <= 4 && /\p{Emoji}/u.test(avatar)
+}
 
 const riskOptions: {
   value: "conservative" | "moderate" | "aggressive"
@@ -129,14 +133,49 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
   return (
     <div className="space-y-6">
       {/* Hero preview card */}
-      <Card className="bg-gradient-to-r from-[#f5c542] to-[#f8e4a8] rounded-3xl border-none shadow-sm overflow-hidden">
-        <CardContent className="p-8 flex flex-col md:flex-row items-center gap-6">
-          <Avatar className="w-24 h-24 bg-white text-[#1d1d1f] text-4xl font-semibold border-4 border-white shadow-lg">
-            <AvatarFallback>
-              {avatarUrl || displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="text-center md:text-left">
+      <Card className="bg-linear-to-r from-[#f5c542] to-[#f8e4a8] rounded-3xl border-none shadow-sm overflow-hidden">
+        <CardContent className="p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative">
+              <Avatar key={avatarUrl} className="w-24 h-24 border-4 border-white shadow-lg">
+                {avatarUrl && !isEmoji(avatarUrl) ? (
+                  <AvatarImage src={avatarUrl} alt={displayName} />
+                ) : null}
+                <AvatarFallback className="bg-white text-[#1d1d1f] text-4xl font-semibold">
+                  {isEmoji(avatarUrl) ? avatarUrl : displayName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1">
+                <AvatarUpload
+                  currentAvatar={avatarUrl}
+                  onAvatarChange={setAvatarUrl}
+                  userId={userId}
+                  compact
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs text-[#1d1d1f]/60 text-center">Pick an emoji</p>
+              <div className="grid grid-cols-5 gap-1.5">
+                {AVATAR_OPTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setAvatarUrl(emoji)}
+                    className={`w-8 h-8 rounded-lg text-lg flex items-center justify-center transition-all ${
+                      avatarUrl === emoji
+                        ? "bg-white scale-110 shadow-sm"
+                        : "bg-[#1d1d1f]/10 hover:bg-white/50"
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center md:text-left md:pt-2">
             <p className="text-[#1d1d1f]/70 text-sm uppercase tracking-wide font-medium">
               Escape artist
             </p>
@@ -164,34 +203,6 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSaveProfile} className="space-y-6">
-                <div className="space-y-4">
-                  <AvatarUpload
-                    currentAvatar={avatarUrl}
-                    onAvatarChange={setAvatarUrl}
-                    userId={userId}
-                  />
-
-                  <div>
-                    <p className="text-sm text-[#8a8a8a] mb-2">Or pick an emoji</p>
-                    <div className="flex flex-wrap gap-2">
-                      {AVATAR_OPTIONS.map((emoji) => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => setAvatarUrl(emoji)}
-                          className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${
-                            avatarUrl === emoji
-                              ? "bg-[#f5c542] scale-110 shadow-md"
-                              : "bg-[#f8f1de] hover:bg-[#f5c542]/30"
-                          }`}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label className="text-[#1d1d1f]">Full name</Label>
                   <Input
@@ -379,7 +390,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
                   value={whyQuit}
                   onChange={(e) => setWhyQuit(e.target.value)}
                   placeholder="Write your personal manifesto. What will freedom let you do? Travel? Build your own thing? Spend more time with family?"
-                  className="min-h-[120px] rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/30 resize-none"
+                  className="min-h-30 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/30 resize-none"
                 />
 
                 <div className="space-y-3">
