@@ -85,10 +85,13 @@ export default async function DashboardPage() {
 
   const runway = goal
     ? calculateRunway({
+        monthlySalary: monthlyIncome,
         monthlyExpenses: totalOutflows || Number(goal.monthly_expenses),
         currentSavings: Number(goal.current_savings),
-        monthlySavingsRate: netSavings > 0 ? netSavings : Number(goal.monthly_savings_rate),
-        targetRunwayMonths: goal.target_runway_months,
+        postQuitIncome: Number(goal.desired_post_quit_income),
+        monthlyExpensesAfterQuit:
+          Number(goal.monthly_expenses_after_quit) || totalOutflows || Number(goal.monthly_expenses),
+        monthsOfSafety: goal.target_runway_months,
       })
     : null
 

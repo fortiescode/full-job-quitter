@@ -1,8 +1,10 @@
 export interface RunwayInputs {
+  monthlySalary: number
   monthlyExpenses: number
   currentSavings: number
-  monthlySavingsRate: number
-  targetRunwayMonths: number
+  postQuitIncome: number
+  monthlyExpensesAfterQuit: number
+  monthsOfSafety: number
 }
 
 export interface RunwayResult {
@@ -17,18 +19,28 @@ export interface RunwayResult {
 
 export function calculateRunway(inputs: RunwayInputs): RunwayResult {
   const {
+    monthlySalary,
     monthlyExpenses,
     currentSavings,
-    monthlySavingsRate,
-    targetRunwayMonths,
+    postQuitIncome,
+    monthlyExpensesAfterQuit,
+    monthsOfSafety,
   } = inputs
 
-  const requiredSavings = monthlyExpenses * targetRunwayMonths
-  const savingsGap = requiredSavings - currentSavings
-  const currentRunwayMonths =
-    monthlyExpenses > 0 ? currentSavings / monthlyExpenses : 0
+  // Money left over each month while still working
+  const monthlySurplus = monthlySalary - monthlyExpenses
 
-  const monthlySurplus = monthlySavingsRate - monthlyExpenses
+  // Shortfall each month after quitting (only cover what income doesn't)
+  const postQuitMonthlyGap = Math.max(0, monthlyExpensesAfterQuit - postQuitIncome)
+
+  // Total safety net needed after quitting
+  const requiredSavings = postQuitMonthlyGap * monthsOfSafety
+  const savingsGap = Math.max(0, requiredSavings - currentSavings)
+
+  // How long current savings would last after quitting with no income
+  const currentRunwayMonths =
+    monthlyExpensesAfterQuit > 0 ? currentSavings / monthlyExpensesAfterQuit : 0
+
   const isFunded = currentSavings >= requiredSavings
 
   let projectedMonthsToGoal: number | null = null

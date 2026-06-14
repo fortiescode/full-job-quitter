@@ -17,8 +17,12 @@ CREATE TABLE IF NOT EXISTS public.financial_goals (
   monthly_expenses NUMERIC(12, 2) NOT NULL DEFAULT 0,
   current_savings NUMERIC(14, 2) NOT NULL DEFAULT 0,
   monthly_savings_rate NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  monthly_income NUMERIC(12, 2) NOT NULL DEFAULT 0,
   target_runway_months INTEGER NOT NULL DEFAULT 12,
   target_quit_date DATE,
+  desired_post_quit_income NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  monthly_expenses_after_quit NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  emergency_fund_months INTEGER NOT NULL DEFAULT 6,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

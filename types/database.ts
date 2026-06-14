@@ -61,6 +61,7 @@ export type Database = {
           target_runway_months: number
           target_quit_date: string | null
           desired_post_quit_income: number
+          monthly_expenses_after_quit: number
           emergency_fund_months: number
           created_at: string
           updated_at: string
@@ -75,6 +76,7 @@ export type Database = {
           target_runway_months?: number
           target_quit_date?: string | null
           desired_post_quit_income?: number
+          monthly_expenses_after_quit?: number
           emergency_fund_months?: number
           created_at?: string
           updated_at?: string
@@ -89,6 +91,7 @@ export type Database = {
           target_runway_months?: number
           target_quit_date?: string | null
           desired_post_quit_income?: number
+          monthly_expenses_after_quit?: number
           emergency_fund_months?: number
           created_at?: string
           updated_at?: string
