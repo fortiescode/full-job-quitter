@@ -19,18 +19,21 @@ export async function updateProfile(data: {
     return { error: "Not authenticated" }
   }
 
+  const updateData: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  }
+
+  if (data.full_name !== undefined) updateData.full_name = data.full_name
+  if (data.avatar_url !== undefined) updateData.avatar_url = data.avatar_url
+  if (data.current_job_title !== undefined) updateData.current_job_title = data.current_job_title
+  if (data.why_quit !== undefined) updateData.why_quit = data.why_quit
+  if (data.risk_tolerance !== undefined) updateData.risk_tolerance = data.risk_tolerance
+  if (data.compact_mode !== undefined) updateData.compact_mode = data.compact_mode
+  if (data.email_reminders !== undefined) updateData.email_reminders = data.email_reminders
+
   const { error } = await supabase
     .from("profiles")
-    .update({
-      full_name: data.full_name,
-      avatar_url: data.avatar_url ?? null,
-      current_job_title: data.current_job_title ?? null,
-      why_quit: data.why_quit ?? null,
-      risk_tolerance: data.risk_tolerance ?? null,
-      compact_mode: data.compact_mode,
-      email_reminders: data.email_reminders,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", userData.user.id)
 
   if (error) {
