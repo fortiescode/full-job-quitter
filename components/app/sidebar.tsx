@@ -45,8 +45,8 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
           collapsed ? "w-20" : "w-64"
         }`}
       >
-        {/* Header with logo and toggle */}
-        <div className="p-4 flex items-center justify-between min-h-[72px]">
+        {/* Header with logo */}
+        <div className="p-4 flex items-center justify-center min-h-[72px]">
           <AnimatePresence mode="wait" initial={false}>
             {!collapsed ? (
               <motion.div
@@ -83,22 +83,6 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
               </motion.div>
             )}
           </AnimatePresence>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onCollapseChange(!collapsed)}
-            className={`h-8 w-8 rounded-lg hover:bg-[#f8f1de] text-[#8a8a8a] shrink-0 transition-all ${
-              collapsed ? "absolute -right-3 top-5 bg-white border border-[#e8e0cc] shadow-sm" : ""
-            }`}
-          >
-            <motion.div
-              animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronLeft size={16} strokeWidth={1.75} />
-            </motion.div>
-          </Button>
         </div>
 
         {/* Navigation */}
@@ -140,8 +124,42 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
           })}
         </nav>
 
+        {/* Collapse / expand toggle */}
+        <div className="px-3 pb-2 pt-1 flex justify-center border-b border-[#e8e0cc]">
+          <Button
+            variant="ghost"
+            onClick={() => onCollapseChange(!collapsed)}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={`rounded-full bg-[#f8f1de] hover:bg-[#f5c542]/30 text-[#1d1d1f] shadow-sm transition-all duration-200 ${
+              collapsed
+                ? "w-9 h-9 p-0 justify-center"
+                : "h-9 px-4 gap-2 justify-start"
+            }`}
+          >
+            <motion.div
+              animate={{ rotate: collapsed ? 180 : 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+            >
+              <ChevronLeft size={16} strokeWidth={1.75} />
+            </motion.div>
+            <AnimatePresence mode="wait" initial={false}>
+              {!collapsed && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-sm font-medium whitespace-nowrap overflow-hidden"
+                >
+                  Collapse
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </Button>
+        </div>
+
         {/* Footer */}
-        <div className="p-3 space-y-1 border-t border-[#e8e0cc]">
+        <div className="p-3 space-y-1">
           <Link href="/settings" title="Settings">
             <Button
               variant="ghost"
