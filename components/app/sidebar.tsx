@@ -46,9 +46,9 @@ function NavLink({
     <Link key={href} href={href} title={label}>
       <Button
         variant="ghost"
-        className={`relative w-full h-11 rounded-r-xl rounded-l-none transition-all duration-200 border-l-[3px] ${
+        className={`relative w-full h-11 rounded-r-xl rounded-l-none transition-all duration-150 border-l-[3px] ${
           isActive
-            ? "bg-[#f5f5f5] text-[#1d1d1f] border-[#f5c542]"
+            ? "bg-[#f8f7f5] text-[#1d1d1f] border-[#f5c542]"
             : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
         } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"}`}
       >
@@ -173,11 +173,11 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
           <Link href="/settings" title="Settings">
             <Button
               variant="ghost"
-              className={`w-full h-11 rounded-r-xl rounded-l-none transition-all duration-200 border-l-[3px] ${
+              className={`w-full h-11 rounded-r-xl rounded-l-none transition-all duration-150 border-l-[3px] ${
                 isSettingsActive
-                  ? "bg-[#f5f5f5] text-[#1d1d1f] border-[#f5c542]"
+                  ? "bg-[#f8f7f5] text-[#1d1d1f] border-[#f5c542]"
                   : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
-              } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"}`}
+              } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3" }`}
             >
               <Settings size={20} strokeWidth={1.75} className="shrink-0" />
               <AnimatePresence mode="wait" initial={false}>

@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card"
 import { WelcomeHeader } from "@/components/dashboard/welcome-header"
 import { StatPill } from "@/components/dashboard/stat-pill"
@@ -51,7 +52,7 @@ export default async function DashboardPage() {
   const profile = userData.user
     ? await supabase
         .from("profiles")
-        .select("full_name, avatar_url, compact_mode")
+        .select("full_name, avatar_url, compact_mode, risk_tolerance")
         .eq("id", userData.user.id)
         .single()
     : null
@@ -68,7 +69,6 @@ export default async function DashboardPage() {
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
   const totalSubscriptions = subscriptions.reduce((sum, s) => sum + Number(s.amount), 0)
   const totalLoanPayments = loans.reduce((sum, l) => sum + Number(l.monthly_payment), 0)
-  const totalOutflows = totalExpenses + totalSubscriptions + totalLoanPayments
 
   const goalUpdatedAt = goal?.updated_at
   const subscriptionUpdatedAt = latestTimestamp([...subscriptions, ...loans])
@@ -76,7 +76,7 @@ export default async function DashboardPage() {
   const milestoneUpdatedAt = latestTimestamp(milestones)
 
   const monthlyIncome = Number(goal?.monthly_income) || 0
-  const netSavings = monthlyIncome - totalOutflows
+  const netSavings = monthlyIncome - totalExpenses
 
   const expensesByCategory: Record<string, number> = {}
   expenses.forEach((expense) => {
@@ -87,11 +87,11 @@ export default async function DashboardPage() {
   const runway = goal
     ? calculateRunway({
         monthlySalary: monthlyIncome,
-        monthlyExpenses: totalOutflows || Number(goal.monthly_expenses),
+        monthlyExpenses: Number(goal.monthly_expenses),
         currentSavings: Number(goal.current_savings),
         postQuitIncome: Number(goal.desired_post_quit_income),
         monthlyExpensesAfterQuit:
-          Number(goal.monthly_expenses_after_quit) || totalOutflows || Number(goal.monthly_expenses),
+          Number(goal.monthly_expenses_after_quit) || Number(goal.monthly_expenses),
         monthsOfSafety: goal.target_runway_months,
       })
     : null
@@ -113,6 +113,20 @@ export default async function DashboardPage() {
       ? "You're fully funded"
       : "Add your finances to project a date"
 
+  const riskTolerance = profile?.data?.risk_tolerance as
+    | "conservative"
+    | "moderate"
+    | "aggressive"
+    | null
+    | undefined
+
+  const riskConfig = {
+    conservative: { label: "Conservative plan", className: "bg-[#e8e0cc] text-[#1d1d1f]" },
+    moderate: { label: "Moderate plan", className: "bg-[#f5c542] text-[#1d1d1f]" },
+    aggressive: { label: "Aggressive plan", className: "bg-[#ff9500] text-white" },
+  }
+  const riskBadge = riskTolerance ? riskConfig[riskTolerance] : null
+
   return (
     <div className={compact ? "space-y-5" : "space-y-8"}>
       {/* Header + status pills + live financial summary */}
@@ -121,7 +135,7 @@ export default async function DashboardPage() {
           <WelcomeHeader name={fullName} avatarUrl={avatarUrl} compact={compact} />
           <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
             <StatPill label="Income" value={formatCurrency(monthlyIncome)} variant="default" compact={compact} />
-            <StatPill label="Expenses" value={formatCurrency(totalOutflows)} variant="dark" compact={compact} />
+            <StatPill label="Expenses" value={formatCurrency(totalExpenses)} variant="dark" compact={compact} />
             <StatPill label="Net savings" value={formatCurrency(netSavings)} variant="accent" compact={compact} />
             <StatPill
               label="Runway"
@@ -246,9 +260,16 @@ export default async function DashboardPage() {
 
         {/* Projected quit date — hero card */}
         <Card size={compact ? "compact" : "default"} className="lg:col-span-3 bg-white rounded-3xl border-none shadow-sm">
-          <CardHeader className={`${compact ? "pb-2" : ""}`}>
-            <CardTitle className={`${compact ? "text-base" : "text-lg"}`}>Projected quit date</CardTitle>
-            <LastUpdated date={goalUpdatedAt} />
+          <CardHeader className={`flex flex-row items-center justify-between ${compact ? "pb-2" : ""}`}>
+            <div>
+              <CardTitle className={`${compact ? "text-base" : "text-lg"}`}>Projected quit date</CardTitle>
+              <LastUpdated date={goalUpdatedAt} />
+            </div>
+            {riskBadge && (
+              <Badge className={`rounded-full text-xs font-medium ${riskBadge.className}`}>
+                {riskBadge.label}
+              </Badge>
+            )}
           </CardHeader>
           <CardContent className={`h-full flex flex-col ${compact ? "pt-2" : ""}`}>
             <p className={`font-semibold text-[#1d1d1f] leading-tight ${compact ? "text-2xl" : "text-4xl"}`}>

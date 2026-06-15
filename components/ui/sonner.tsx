@@ -6,7 +6,8 @@ import { Toaster as Sonner } from "sonner"
 export function Toaster() {
   return (
     <Sonner
-      position="bottom-right"
+      position="top-center"
+      offset="24px"
       toastOptions={{
         className:
           "bg-white text-[#1d1d1f] border-none shadow-lg rounded-full px-4 py-3",
@@ -19,7 +20,7 @@ export function Toaster() {
           </div>
         ),
       }}
-      closeButton={false}
+      closeButton
       duration={3000}
     />
   )

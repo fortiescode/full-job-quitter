@@ -142,7 +142,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
         setError(result.error)
         return
       }
-      toast.success("Escape plan saved")
+      toast.success("Escape plan updated")
       showSaved("escape")
     })
   }

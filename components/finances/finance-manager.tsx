@@ -152,7 +152,7 @@ export function FinanceManager({
   function handleSaveIncome() {
     startTransition(async () => {
       await upsertFinancialGoal({ monthly_income: monthlyIncome })
-      toast.success("Finances saved")
+      toast.success("Income saved")
     })
   }
 

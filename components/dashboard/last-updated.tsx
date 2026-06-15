@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { timeAgo } from "@/lib/time"
 
 interface LastUpdatedProps {
@@ -9,21 +9,24 @@ interface LastUpdatedProps {
 }
 
 export function LastUpdated({ date, className }: LastUpdatedProps) {
-  const [label, setLabel] = useState(() => (date ? timeAgo(date) : ""))
+  const [tick, setTick] = useState(0)
+
+  const label = useMemo(() => {
+    if (!date) return ""
+    return timeAgo(date)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, tick])
 
   useEffect(() => {
     if (!date) return
-    setLabel(timeAgo(date))
-    const interval = setInterval(() => setLabel(timeAgo(date)), 60_000)
+    const interval = setInterval(() => setTick((t) => t + 1), 60_000)
     return () => clearInterval(interval)
   }, [date])
 
   if (!date || !label) return null
 
   return (
-    <span
-      className={`text-[10px] uppercase tracking-wide text-[#8a8a8a] ${className}`}
-    >
+    <span className={`text-[11px] text-[#8a8a8a] ${className}`}>
       Updated {label}
     </span>
   )

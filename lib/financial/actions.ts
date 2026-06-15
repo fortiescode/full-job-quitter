@@ -73,5 +73,9 @@ export async function upsertFinancialGoal(
   }
 
   revalidatePath("/(app)", "layout")
+  revalidatePath("/(app)/dashboard", "page")
+  revalidatePath("/(app)/calculator", "page")
+  revalidatePath("/(app)/finances", "page")
+  revalidatePath("/(app)/settings", "page")
   return { data: result.data as FinancialGoal }
 }

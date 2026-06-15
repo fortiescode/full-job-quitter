@@ -42,6 +42,7 @@ export async function updateProfile(data: {
 
   revalidatePath("/(app)", "layout")
   revalidatePath("/(app)/dashboard", "page")
+  revalidatePath("/(app)/settings", "page")
   return { success: true }
 }
 
@@ -92,6 +93,9 @@ export async function updateEscapePlan(data: {
   }
 
   revalidatePath("/(app)", "layout")
+  revalidatePath("/(app)/dashboard", "page")
+  revalidatePath("/(app)/calculator", "page")
+  revalidatePath("/(app)/settings", "page")
   return { success: true }
 }
 

@@ -1,32 +1,20 @@
-const UNITS: { unit: Intl.RelativeTimeFormatUnit; ms: number }[] = [
-  { unit: "year", ms: 1000 * 60 * 60 * 24 * 365 },
-  { unit: "month", ms: 1000 * 60 * 60 * 24 * 30 },
-  { unit: "week", ms: 1000 * 60 * 60 * 24 * 7 },
-  { unit: "day", ms: 1000 * 60 * 60 * 24 },
-  { unit: "hour", ms: 1000 * 60 * 60 },
-  { unit: "minute", ms: 1000 * 60 },
-  { unit: "second", ms: 1000 },
-]
-
 export function timeAgo(dateInput: string | Date | null | undefined): string {
   if (!dateInput) return ""
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput
   const now = new Date()
   const diff = now.getTime() - date.getTime()
 
-  if (diff < 60_000) return "just now"
+  const minutes = Math.floor(diff / (1000 * 60))
+  if (minutes < 5) return "just now"
+  if (minutes < 60) return `${minutes} minutes ago`
 
-  for (const { unit, ms } of UNITS) {
-    const value = Math.floor(diff / ms)
-    if (value >= 1) {
-      return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
-        -value,
-        unit
-      )
-    }
-  }
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  if (hours < 24) return `${hours} hours ago`
 
-  return "just now"
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days < 2) return "yesterday"
+
+  return `${days} days ago`
 }
 
 export function latestTimestamp(

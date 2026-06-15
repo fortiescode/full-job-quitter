@@ -75,6 +75,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
   const [category, setCategory] = useState<Milestone["category"]>("personal")
   const [isPending, startTransition] = useTransition()
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [flashId, setFlashId] = useState<string | null>(null)
 
   const hasMilestones = milestones.length > 0
   const completedCount = milestones.filter((m) => m.status === "completed").length
@@ -97,11 +98,28 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
     })
   }
 
-  function handleToggle(id: string, status: Milestone["status"]) {
-    setPendingId(id)
+  function handleToggle(milestone: Milestone) {
+    const isCompleting = milestone.status !== "completed"
+    setFlashId(null)
+    if (isCompleting) setFlashId(milestone.id)
+    setPendingId(milestone.id)
     startTransition(async () => {
-      await toggleMilestone(id, status)
-      toast.success(status === "completed" ? "Milestone reopened" : "Milestone completed")
+      await toggleMilestone(milestone.id, milestone.status)
+      if (isCompleting) {
+        const completed = completedCount + 1
+        toast.success(
+          `${milestone.title} complete! ${completed} of ${milestones.length} done.`
+        )
+        setTimeout(
+          () =>
+            setFlashId((current) =>
+              current === milestone.id ? null : current
+            ),
+          200
+        )
+      } else {
+        toast.success("Milestone reopened")
+      }
       setPendingId(null)
     })
   }
@@ -234,6 +252,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
             const isCompleted = milestone.status === "completed"
             const categoryStyle = CATEGORY_STYLES[milestone.category]
             const completedDate = formatCompletedDate(milestone.completed_at)
+            const isFlashing = flashId === milestone.id
 
             return (
               <motion.div
@@ -245,7 +264,11 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
                 transition={{ delay: index * 0.05 }}
               >
                 <Card
-                  className={`bg-white rounded-3xl border-none shadow-sm border-l-4 transition-colors ${
+                  className={`rounded-3xl border-none shadow-sm border-l-4 transition-all duration-200 ${
+                    isFlashing ? "bg-[#f5c542]/20" : "bg-white"
+                  } ${
+                    isCompleted ? "opacity-75" : "opacity-100"
+                  } ${
                     isCompleted
                       ? "border-l-[#34c759]"
                       : "border-l-[#f5c542]"
@@ -255,9 +278,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
                     <div className="relative mt-0.5">
                       <Checkbox
                         checked={isCompleted}
-                        onCheckedChange={() =>
-                          handleToggle(milestone.id, milestone.status)
-                        }
+                        onCheckedChange={() => handleToggle(milestone)}
                         disabled={pendingId === milestone.id}
                         className="size-6 rounded-full border-[#0066cc] data-[state=checked]:bg-[#1d1d1f] data-[state=checked]:text-white"
                       />
@@ -267,6 +288,11 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 15,
+                            }}
                             className="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
                             <Check

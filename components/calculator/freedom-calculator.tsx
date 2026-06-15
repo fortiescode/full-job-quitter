@@ -422,7 +422,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
         toast.error(result.error)
         return
       }
-      toast.success("Calculator saved")
+      toast.success("Escape plan saved")
     })
   }
 
