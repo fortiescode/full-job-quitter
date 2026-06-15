@@ -3,14 +3,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fulljogquitter.netlify.app"),
-  title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
+  title: "Full Jog Quitter — Plan Your Escape from the 9-to-5 race and achieve financial freedom",
   icons: {
     icon: "/faviconnew.svg",
   },
   description:
     "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
   openGraph: {
-    title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
+    title: "Full Jog Quitter — Plan Your Escape from the 9-to-5 race and achieve financial freedom",
     description:
       "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
     url: "https://fulljogquitter.netlify.app",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Full Jog Quitter — Plan Your Escape from the 9-to-5",
+    title: "Full Jog Quitter — Plan Your Escape from the 9-to-5 race and achieve financial freedom",
     description:
       "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",
   },
