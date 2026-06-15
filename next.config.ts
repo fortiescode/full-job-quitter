@@ -1,12 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  // Netlify handles image optimization via the Next.js Runtime
-  images: {
-    unoptimized: true,
-  },
-  // Ensure trailing slashes are consistent
+  // Vercel supports Next.js image optimization natively
   trailingSlash: false,
-};
+}
 
-export default nextConfig;
+export default nextConfig
