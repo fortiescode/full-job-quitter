@@ -125,32 +125,29 @@ export function OnboardingTour() {
   const tooltipTop = targetRect.top + targetRect.height / 2
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none">
-      {/* Dark overlay — click outside to dismiss */}
+    <div className="fixed inset-0 z-50">
+      {/* Click-outside overlay */}
       <div
-        className="absolute inset-0 bg-black/20 pointer-events-auto"
+        className="absolute inset-0"
         onClick={completeTour}
         aria-hidden="true"
       />
 
-      {/* Spotlight */}
-      <div
-        className="absolute pointer-events-auto"
+      {/* Spotlight with dimming cutout */}
+      <motion.div
+        layoutId="tour-spotlight"
+        className="absolute rounded-2xl ring-2 ring-[#f5c542]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
         style={{
           left: targetRect.left - 8,
           top: targetRect.top - 8,
           width: targetRect.width + 16,
           height: targetRect.height + 16,
+          boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.2)",
         }}
-      >
-        <motion.div
-          layoutId="tour-spotlight"
-          className="w-full h-full rounded-2xl ring-2 ring-[#f5c542] ring-offset-4 ring-offset-[#f8f1de]/50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        />
-      </div>
+      />
 
       {/* Tooltip */}
       <AnimatePresence mode="wait">
@@ -163,7 +160,8 @@ export function OnboardingTour() {
           className="absolute bg-white rounded-3xl shadow-xl border border-[#e8e0cc] p-5 w-[280px] pointer-events-auto"
           style={{
             left: Math.min(tooltipLeft, windowSize.width - tooltipWidth - 24),
-            top: Math.max(24, Math.min(tooltipTop - 80, windowSize.height - 220)),
+            top: Math.max(80, Math.min(tooltipTop, windowSize.height - 180)),
+            transform: "translateY(-50%)",
           }}
         >
           {/* Arrow pointing to the target */}
