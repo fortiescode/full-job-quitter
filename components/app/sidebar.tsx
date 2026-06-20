@@ -90,56 +90,20 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
       >
         {/* Header with logo */}
         <div className="p-4 flex items-center justify-center min-h-[72px]">
-          <AnimatePresence mode="wait" initial={false}>
-            {!collapsed ? (
-              <motion.div
-                key="logo-full"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Link
-                  href="/"
-                  title="full-jog-quitter"
-                  className="flex items-center"
-                >
-                  <Image
-                    src="/fjq-logo.png"
-                    alt="full-jog-quitter logo"
-                    width={70}
-                    height={70}
-                    className="h-[70px] w-auto"
-                    priority
-                  />
-                </Link>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="logo-collapsed"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2 }}
-                className="w-full flex justify-center"
-              >
-                <Link
-                  href="/"
-                  title="full-jog-quitter"
-                  className="flex items-center justify-center"
-                >
-                  <Image
-                    src="/fjq-logo.png"
-                    alt="full-jog-quitter logo"
-                    width={40}
-                    height={40}
-                    className="h-10 w-auto"
-                    priority
-                  />
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <Link
+            href="/"
+            title="full-jog-quitter"
+            className="flex items-center justify-center"
+          >
+            <Image
+              src="/fjq-logo.png"
+              alt="full-jog-quitter logo"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
+          </Link>
         </div>
 
         {/* Navigation */}

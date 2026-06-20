@@ -11,10 +11,10 @@ export interface CurrencyInputProps
   className?: string
 }
 
-function formatCurrencyInput(value: number, currency: string): string {
+function formatCurrencyInput(value: number): string {
   return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
+    style: "decimal",
+    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value)
 }
@@ -74,7 +74,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           type="text"
           inputMode="numeric"
           {...props}
-          value={isEditing ? editValue : formatCurrencyInput(numericValue, currency)}
+          value={isEditing ? editValue : formatCurrencyInput(numericValue)}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
