@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { DashboardShell } from "@/components/app/dashboard-shell"
+import { CurrencyProvider } from "@/components/providers/currency-provider"
 
 export default async function AppLayout({
   children,
@@ -14,5 +15,15 @@ export default async function AppLayout({
     redirect("/auth/sign-in")
   }
 
-  return <DashboardShell>{children}</DashboardShell>
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("currency")
+    .eq("id", data.user.id)
+    .single()
+
+  return (
+    <CurrencyProvider currency={profile?.currency ?? "USD"}>
+      <DashboardShell>{children}</DashboardShell>
+    </CurrencyProvider>
+  )
 }

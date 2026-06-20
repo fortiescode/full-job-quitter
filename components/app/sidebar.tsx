@@ -49,7 +49,7 @@ function NavLink({
         variant="ghost"
         className={`relative w-full h-11 rounded-r-xl rounded-l-none transition-all duration-150 border-l-[3px] ${
           isActive
-            ? "bg-[#f8f7f5] text-[#1d1d1f] border-[#f5c542]"
+            ? "bg-[#f8f7f5] text-[#1d1d1f] border-[var(--accent-color)]"
             : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
         } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3"}`}
       >
@@ -105,11 +105,11 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
                   className="flex items-center"
                 >
                   <Image
-                    src="/logo.png"
+                    src="/logo2-icon.png"
                     alt="full-jog-quitter logo"
-                    width={40}
-                    height={40}
-                    className="h-10 w-auto"
+                    width={70}
+                    height={70}
+                    className="h-[70px] w-auto"
                     priority
                   />
                 </Link>
@@ -129,7 +129,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
                   className="flex items-center justify-center"
                 >
                   <Image
-                    src="/logo.png"
+                    src="/logo2-icon.png"
                     alt="full-jog-quitter logo"
                     width={40}
                     height={40}
@@ -190,7 +190,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
               variant="ghost"
               className={`w-full h-11 rounded-r-xl rounded-l-none transition-all duration-150 border-l-[3px] ${
                 isSettingsActive
-                  ? "bg-[#f8f7f5] text-[#1d1d1f] border-[#f5c542]"
+                  ? "bg-[#f8f7f5] text-[#1d1d1f] border-[var(--accent-color)]"
                   : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
               } ${collapsed ? "justify-center px-0" : "justify-start gap-3 px-3" }`}
             >

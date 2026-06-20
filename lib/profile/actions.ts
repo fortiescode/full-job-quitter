@@ -11,6 +11,7 @@ export async function updateProfile(data: {
   risk_tolerance?: "conservative" | "moderate" | "aggressive" | null
   compact_mode?: boolean
   email_reminders?: boolean
+  currency?: string
 }) {
   const supabase = await createClient()
   const { data: userData, error: userError } = await supabase.auth.getUser()
@@ -30,6 +31,7 @@ export async function updateProfile(data: {
   if (data.risk_tolerance !== undefined) updateData.risk_tolerance = data.risk_tolerance
   if (data.compact_mode !== undefined) updateData.compact_mode = data.compact_mode
   if (data.email_reminders !== undefined) updateData.email_reminders = data.email_reminders
+  if (data.currency !== undefined) updateData.currency = data.currency
 
   const { error } = await supabase
     .from("profiles")

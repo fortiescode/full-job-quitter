@@ -2,6 +2,7 @@
 
 import { useState, forwardRef } from "react"
 import { cn } from "@/lib/utils"
+import { useCurrency } from "@/components/providers/currency-provider"
 
 export interface CurrencyInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
@@ -10,12 +11,24 @@ export interface CurrencyInputProps
   className?: string
 }
 
-function formatCurrencyInput(value: number): string {
+function formatCurrencyInput(value: number, currency: string): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency,
     maximumFractionDigits: 0,
   }).format(value)
+}
+
+function getCurrencySymbol(currency: string): string {
+  try {
+    return (
+      new Intl.NumberFormat("en-US", { style: "currency", currency })
+        .formatToParts(0)
+        .find((part) => part.type === "currency")?.value ?? "$"
+    )
+  } catch {
+    return "$"
+  }
 }
 
 function parseCurrencyInput(value: string): number {
@@ -26,6 +39,7 @@ function parseCurrencyInput(value: string): number {
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ value, onChange, className, ...props }, ref) => {
+    const currency = useCurrency()
     const numericValue = typeof value === "string" ? parseCurrencyInput(value) : Number(value) || 0
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState(String(numericValue))
@@ -53,14 +67,14 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     return (
       <div className={cn("relative", className)}>
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8a8a8a] font-medium pointer-events-none">
-          $
+          {getCurrencySymbol(currency)}
         </span>
         <input
           ref={ref}
           type="text"
           inputMode="numeric"
           {...props}
-          value={isEditing ? editValue : formatCurrencyInput(numericValue)}
+          value={isEditing ? editValue : formatCurrencyInput(numericValue, currency)}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}

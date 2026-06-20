@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { ExpenseCategory } from "@/lib/finances/actions"
+import { useCurrency } from "@/components/providers/currency-provider"
 import { formatCurrency } from "@/lib/calculator/utils"
 
 interface ExpenseBarChartProps {
@@ -14,6 +15,7 @@ interface ExpenseBarChartProps {
 }
 
 export function ExpenseBarChart({ categories, expensesByCategory, compact = false }: ExpenseBarChartProps) {
+  const currency = useCurrency()
   const data = categories.map((category) => ({
     name: category.name,
     amount: expensesByCategory[category.id] || 0,
@@ -52,9 +54,9 @@ export function ExpenseBarChart({ categories, expensesByCategory, compact = fals
             <div className={`flex items-center justify-between ${compact ? "text-xs" : "text-sm"}`}>
               <span className="font-medium text-[#1d1d1f]">{item.name}</span>
               <span className="text-[#8a8a8a]">
-                {formatCurrency(item.amount)}
+                {formatCurrency(item.amount, currency)}
                 {item.budget > 0 && (
-                  <span className="ml-1">/ {formatCurrency(item.budget)}</span>
+                  <span className="ml-1">/ {formatCurrency(item.budget, currency)}</span>
                 )}
               </span>
             </div>

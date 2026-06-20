@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Expense, ExpenseCategory } from "@/lib/finances/actions"
+import { useCurrency } from "@/components/providers/currency-provider"
 import { formatCurrency } from "@/lib/calculator/utils"
 
 interface RecentExpensesProps {
@@ -14,6 +15,7 @@ interface RecentExpensesProps {
 }
 
 export function RecentExpenses({ expenses, categories, compact = false }: RecentExpensesProps) {
+  const currency = useCurrency()
   const recent = expenses.slice(0, compact ? 4 : 5)
 
   return (
@@ -62,7 +64,7 @@ export function RecentExpenses({ expenses, categories, compact = false }: Recent
                 </div>
               </div>
               <span className={`font-semibold text-[#1d1d1f] ${compact ? "text-xs" : "text-sm"}`}>
-                {formatCurrency(Number(expense.amount))}
+                {formatCurrency(Number(expense.amount), currency)}
               </span>
             </motion.div>
           )

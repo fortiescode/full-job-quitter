@@ -92,7 +92,7 @@ export function MobileNav() {
                         variant="ghost"
                         className={`w-full justify-start gap-3 h-12 rounded-r-xl rounded-l-none border-l-[3px] transition-colors ${
                           isActive
-                            ? "bg-white text-[#1d1d1f] border-[#f5c542]"
+                            ? "bg-white text-[#1d1d1f] border-[var(--accent-color)]"
                             : "text-[#1d1d1f] hover:bg-white/50 border-transparent"
                         }`}
                       >
@@ -112,7 +112,7 @@ export function MobileNav() {
                     variant="ghost"
                     className={`w-full justify-start gap-3 h-12 rounded-r-xl rounded-l-none border-l-[3px] transition-colors ${
                       isSettingsActive
-                        ? "bg-white text-[#1d1d1f] border-[#f5c542]"
+                        ? "bg-white text-[#1d1d1f] border-[var(--accent-color)]"
                         : "text-[#1d1d1f] hover:bg-white/50 border-transparent"
                     }`}
                   >

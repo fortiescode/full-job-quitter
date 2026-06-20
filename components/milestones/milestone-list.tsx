@@ -239,7 +239,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
             <Loader2 className="animate-spin" size={18} strokeWidth={1.75} />
           ) : (
             <>
-              <Plus size={18} strokeWidth={1.75} className="mr-2" />
+              
               Add
             </>
           )}

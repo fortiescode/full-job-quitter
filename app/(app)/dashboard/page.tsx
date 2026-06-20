@@ -52,7 +52,7 @@ export default async function DashboardPage() {
   const profile = userData.user
     ? await supabase
         .from("profiles")
-        .select("full_name, avatar_url, compact_mode, risk_tolerance")
+        .select("full_name, avatar_url, compact_mode, risk_tolerance, currency")
         .eq("id", userData.user.id)
         .single()
     : null
@@ -60,6 +60,7 @@ export default async function DashboardPage() {
   const fullName = profile?.data?.full_name ?? userData.user?.email?.split("@")[0] ?? ""
   const avatarUrl = profile?.data?.avatar_url ?? ""
   const compact = profile?.data?.compact_mode ?? false
+  const currency = profile?.data?.currency ?? "USD"
 
   const completedMilestones = milestones.filter((m) => m.status === "completed").length
   const milestoneProgress = milestones.length > 0
@@ -134,9 +135,9 @@ export default async function DashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <WelcomeHeader name={fullName} avatarUrl={avatarUrl} compact={compact} />
           <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
-            <StatPill label="Income" value={formatCurrency(monthlyIncome)} variant="default" compact={compact} />
-            <StatPill label="Expenses" value={formatCurrency(totalExpenses)} variant="dark" compact={compact} />
-            <StatPill label="Net savings" value={formatCurrency(netSavings)} variant="accent" compact={compact} />
+            <StatPill label="Income" value={formatCurrency(monthlyIncome, currency)} variant="default" compact={compact} />
+            <StatPill label="Expenses" value={formatCurrency(totalExpenses, currency)} variant="dark" compact={compact} />
+            <StatPill label="Net savings" value={formatCurrency(netSavings, currency)} variant="accent" compact={compact} />
             <StatPill
               label="Runway"
               value={`${formatNumber(runway?.currentRunwayMonths ?? 0, 1)} mo`}
@@ -161,11 +162,11 @@ export default async function DashboardPage() {
             <LastUpdated date={goalUpdatedAt} />
           </div>
           <p className={`font-semibold text-[#1d1d1f] ${compact ? "text-2xl" : "text-4xl"}`}>
-            {formatCurrency(Number(goal?.current_savings) || 0)}
+            {formatCurrency(Number(goal?.current_savings) || 0, currency)}
           </p>
           <div className={`h-1.5 bg-[#f8f1de] rounded-full overflow-hidden ${compact ? "mt-3" : "mt-4"}`}>
             <div
-              className="h-full bg-[#f5c542] rounded-full"
+              className="h-full bg-(--accent-color) rounded-full"
               style={{ width: `${fundingProgress}%` }}
             />
           </div>
@@ -180,7 +181,7 @@ export default async function DashboardPage() {
             {formatNumber(fundingProgress, 1)}%
           </p>
           <p className={`text-[#8a8a8a] ${compact ? "text-xs mt-1.5" : "text-sm mt-2"}`}>
-            Goal: {formatCurrency(runway?.requiredSavings ?? 0)}
+            Goal: {formatCurrency(runway?.requiredSavings ?? 0, currency)}
           </p>
         </Card>
 
@@ -208,7 +209,7 @@ export default async function DashboardPage() {
             {subscriptions.length}
           </p>
           <p className={`text-[#8a8a8a] ${compact ? "text-xs mt-1.5" : "text-sm mt-2"}`}>
-            {formatCurrency(totalSubscriptions)}/mo
+            {formatCurrency(totalSubscriptions, currency)}/mo
           </p>
         </Card>
       </div>
@@ -279,7 +280,7 @@ export default async function DashboardPage() {
 
             <div className={`h-1.5 bg-[#f8f1de] rounded-full overflow-hidden ${compact ? "mt-4" : "mt-6"}`}>
               <div
-                className="h-full bg-[#f5c542] rounded-full"
+                className="h-full bg-(--accent-color) rounded-full"
                 style={{ width: `${milestoneProgress}%` }}
               />
             </div>
@@ -392,7 +393,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between">
               <span className={`text-[#8a8a8a] ${compact ? "text-sm" : ""}`}>Required savings</span>
               <span className={`font-semibold text-[#1d1d1f] ${compact ? "text-sm" : ""}`}>
-                {formatCurrency(runway?.requiredSavings ?? 0)}
+                {formatCurrency(runway?.requiredSavings ?? 0, currency)}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -404,7 +405,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between">
               <span className={`text-[#8a8a8a] ${compact ? "text-sm" : ""}`}>Monthly surplus</span>
               <span className={`font-semibold ${(runway?.monthlySurplus ?? 0) >= 0 ? "text-[#34c759]" : "text-[#ff3b30]"} ${compact ? "text-sm" : ""}`}>
-                {formatCurrency(runway?.monthlySurplus ?? 0)}
+                {formatCurrency(runway?.monthlySurplus ?? 0, currency)}
               </span>
             </div>
           </CardContent>

@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CurrencyInput } from "@/components/ui/currency-input"
 import { Input } from "@/components/ui/input"
+import { useCurrency } from "@/components/providers/currency-provider"
 import { upsertFinancialGoal } from "@/lib/financial/actions"
 import { calculateRunway, formatCurrency, formatNumber } from "@/lib/calculator/utils"
 import { toast } from "sonner"
@@ -38,9 +39,11 @@ function formatDate(date: Date | null): string {
 function ProjectionBars({
   currentSavings,
   requiredSavings,
+  currency,
 }: {
   currentSavings: number
   requiredSavings: number
+  currency: string
 }) {
   const bars = Array.from({ length: 6 }, (_, i) => {
     const progress = i / 5
@@ -59,9 +62,9 @@ function ProjectionBars({
           animate={{ height: `${Math.max(bar.heightPercent, 8)}%` }}
           transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
           className={`flex-1 rounded-t-lg ${
-            bar.isProjected ? "bg-[#f5c542]" : "bg-[#d4d0c5]"
+            bar.isProjected ? "bg-[var(--accent-color)]" : "bg-[#d4d0c5]"
           }`}
-          title={formatCurrency(bar.value)}
+          title={formatCurrency(bar.value, currency)}
         />
       ))}
     </div>
@@ -96,6 +99,7 @@ interface MoneyFieldProps {
   step?: number
   note?: React.ReactNode
   tooltip?: React.ReactNode
+  currency: string
 }
 
 function MoneyField({
@@ -108,6 +112,7 @@ function MoneyField({
   step = 500,
   note,
   tooltip,
+  currency,
 }: MoneyFieldProps) {
   return (
     <TooltipProvider>
@@ -119,7 +124,7 @@ function MoneyField({
             {tooltip && <FieldTooltip>{tooltip}</FieldTooltip>}
           </Label>
         <span className="text-sm font-medium text-[#f5c542]">
-          {formatCurrency(value)}
+          {formatCurrency(value, currency)}
         </span>
       </div>
       <Slider
@@ -212,6 +217,7 @@ interface QuitFasterTipsProps {
   currentSavings: number
   monthsOfSafety: number
   currentProjectedMonths: number
+  currency: string
   onScenario: (changes: {
     monthlySalary?: number
     monthlyExpenses?: number
@@ -228,6 +234,7 @@ function QuitFasterTips({
   currentSavings,
   monthsOfSafety,
   currentProjectedMonths,
+  currency,
   onScenario,
 }: QuitFasterTipsProps) {
   // Scenario 1: save 2x current monthly savings by raising salary
@@ -275,7 +282,7 @@ function QuitFasterTips({
         <span>
           If you saved{" "}
           <span className="font-medium text-[#1d1d1f]">
-            {formatCurrency(monthlySavings * 2)}/month
+            {formatCurrency(monthlySavings * 2, currency)}/month
           </span>
           , you&apos;d quit{" "}
           <span className="font-medium text-[#1d1d1f]">
@@ -298,11 +305,11 @@ function QuitFasterTips({
           <span>
             If you earned{" "}
             <span className="font-medium text-[#1d1d1f]">
-              {formatCurrency(scenario2PostIncome)}/month
+              {formatCurrency(scenario2PostIncome, currency)}/month
             </span>{" "}
             after quitting, you&apos;d need{" "}
             <span className="font-medium text-[#1d1d1f]">
-              {formatCurrency(lessAmount)} less
+              {formatCurrency(lessAmount, currency)} less
             </span>
           </span>
           <ArrowRight
@@ -460,6 +467,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={50000}
                 step={500}
                 tooltip="Your total take-home pay from your current job after taxes"
+                currency={currency}
               />
 
               <MoneyField
@@ -471,6 +479,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={20000}
                 step={100}
                 tooltip="Everything you spend to live: rent, food, bills, subscriptions, fun"
+                currency={currency}
               />
 
               <MoneyField
@@ -482,6 +491,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={500000}
                 step={1000}
                 tooltip="Cash you have right now in savings accounts — don't count investments"
+                currency={currency}
               />
 
               <TooltipProvider>
@@ -499,7 +509,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                       isOverspending ? "text-[#ff3b30]" : "text-[#34c759]"
                     }`}
                   >
-                    {formatCurrency(monthlySavings)}
+                    {formatCurrency(monthlySavings, currency)}
                   </span>
                 </div>
                   <p className="text-xs text-[#8a8a8a]">
@@ -532,6 +542,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={50000}
                 step={500}
                 tooltip="Money from freelancing, side work, or part-time gigs after you quit"
+                currency={currency}
                 note={
                   <>
                     Also set in{" "}
@@ -554,6 +565,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={20000}
                 step={100}
                 tooltip="Your costs might change: no commute, different city, cheaper lifestyle?"
+                currency={currency}
               />
 
               <NumberField
@@ -600,7 +612,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
             <CardContent className="p-6">
               <p className="text-sm text-[#8a8a8a] mb-1">Required savings</p>
               <p className="text-4xl font-semibold text-[#1d1d1f]">
-                {formatCurrency(runway.requiredSavings)}
+                {formatCurrency(runway.requiredSavings, currency)}
               </p>
               <p className="text-xs text-[#8a8a8a] mt-2">
                 Monthly shortfall × months of safety
@@ -617,7 +629,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                     runway.monthlySurplus < 0 ? "text-[#ff3b30]" : "text-[#34c759]"
                   }`}
                 >
-                  {formatCurrency(runway.monthlySurplus)}
+                  {formatCurrency(runway.monthlySurplus, currency)}
                 </p>
               </CardContent>
             </Card>
@@ -629,7 +641,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 {runway.monthlyShortfallAfterQuit > 0 ? (
                   <>
                     <p className="text-2xl font-semibold text-[#ff9500]">
-                      {formatCurrency(runway.monthlyShortfallAfterQuit)}
+                      {formatCurrency(runway.monthlyShortfallAfterQuit, currency)}
                     </p>
                     <p className="text-xs text-[#8a8a8a] mt-1">
                       Your savings must cover this each month
@@ -650,7 +662,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
             <CardContent className="p-6">
               <p className="text-sm text-[#8a8a8a] mb-1">Savings gap</p>
               <p className="text-3xl font-semibold text-[#1d1d1f]">
-                {formatCurrency(runway.savingsGap)}
+                {formatCurrency(runway.savingsGap, currency)}
               </p>
             </CardContent>
           </Card>
@@ -681,7 +693,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                   </p>
                   <p className="text-sm text-[#8a8a8a] mt-2">
                     You&apos;re spending{" "}
-                    {formatCurrency(Math.abs(runway.monthlySurplus))} more than you
+                    {formatCurrency(Math.abs(runway.monthlySurplus), currency)} more than you
                     earn. Reduce expenses or increase income to start saving for your
                     escape.
                   </p>
@@ -723,6 +735,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 <ProjectionBars
                   currentSavings={currentSavings}
                   requiredSavings={runway.requiredSavings}
+                  currency={currency}
                 />
               </div>
             </CardContent>
@@ -738,6 +751,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
               currentSavings={currentSavings}
               monthsOfSafety={monthsOfSafety}
               currentProjectedMonths={runway.projectedMonthsToGoal ?? 0}
+              currency={currency}
               onScenario={({ monthlySalary: newSalary, monthlyExpenses: newExpenses, postQuitIncome: newPostIncome }) => {
                 if (newSalary !== undefined) setMonthlySalary(newSalary)
                 if (newExpenses !== undefined) handleMonthlyExpensesChange(newExpenses)

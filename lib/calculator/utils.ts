@@ -66,10 +66,10 @@ export function calculateRunway(inputs: RunwayInputs): RunwayResult {
   }
 }
 
-export function formatCurrency(value: number): string {
+export function formatCurrency(value: number, currency = "USD"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency,
     maximumFractionDigits: 0,
   }).format(value)
 }

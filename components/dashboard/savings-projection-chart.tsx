@@ -1,5 +1,6 @@
 "use client"
 
+import { useCurrency } from "@/components/providers/currency-provider"
 import { formatCurrency } from "@/lib/calculator/utils"
 
 interface SavingsProjectionChartProps {
@@ -17,6 +18,7 @@ export function SavingsProjectionChart({
   projectedMonthsToGoal,
   compact = false,
 }: SavingsProjectionChartProps) {
+  const currency = useCurrency()
   if (projectedMonthsToGoal === null || projectedMonthsToGoal <= 0) {
     return (
       <div className={`flex flex-col items-center justify-center text-center ${compact ? "h-40" : "h-56"}`}>
@@ -94,7 +96,7 @@ export function SavingsProjectionChart({
             y1={yScale(requiredSavings)}
             x2={padding.left + chartWidth}
             y2={yScale(requiredSavings)}
-            stroke="#f5c542"
+            stroke="var(--accent-color)"
             strokeWidth={2}
             strokeDasharray="6 4"
           />
@@ -115,14 +117,14 @@ export function SavingsProjectionChart({
             y1={padding.top}
             x2={xScale(months)}
             y2={padding.top + chartHeight}
-            stroke="#f5c542"
+            stroke="var(--accent-color)"
             strokeWidth={2}
           />
           <circle
             cx={xScale(months)}
             cy={yScale(Math.min(currentSavings + monthlySurplus * months, requiredSavings))}
             r={6}
-            fill="#f5c542"
+            fill="var(--accent-color)"
             stroke="white"
             strokeWidth={3}
           />
@@ -136,7 +138,7 @@ export function SavingsProjectionChart({
               textAnchor="end"
               className="text-xs fill-[#8a8a8a]"
             >
-              {formatCurrency(tick)}
+              {formatCurrency(tick, currency)}
             </text>
           ))}
 
@@ -158,9 +160,9 @@ export function SavingsProjectionChart({
             x={padding.left + chartWidth}
             y={yScale(requiredSavings) - 8}
             textAnchor="end"
-            className="text-xs fill-[#f5c542] font-medium"
+            className="text-xs fill-[var(--accent-color)] font-medium"
           >
-            Goal {formatCurrency(requiredSavings)}
+            Goal {formatCurrency(requiredSavings, currency)}
           </text>
 
           <defs>

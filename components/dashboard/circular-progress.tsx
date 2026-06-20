@@ -13,7 +13,7 @@ export function CircularProgress({
   value,
   size = 140,
   strokeWidth = 12,
-  color = "#f5c542",
+  color = "var(--accent-color)",
   label,
   sublabel,
 }: CircularProgressProps) {

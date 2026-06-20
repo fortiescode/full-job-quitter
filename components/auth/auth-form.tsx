@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useMemo, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -117,6 +118,16 @@ export function AuthForm({ defaultMode = "sign-in" }: AuthFormProps) {
     >
       <Card className="bg-white shadow-sm rounded-2xl overflow-hidden">
         <CardHeader className="space-y-1 text-center p-8">
+          <div className="flex justify-center mb-2">
+            <Image
+              src="/logo2-icon.png"
+              alt="full-jog-quitter logo"
+              width={94}
+              height={94}
+              className="h-[94px] w-auto"
+              priority
+            />
+          </div>
           <CardTitle className="text-2xl font-semibold tracking-tight text-[#1d1d1f] ">
             {isSignUp
               ? "Create your account"

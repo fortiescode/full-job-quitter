@@ -2,6 +2,19 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@keyframes highlight-section {
+  0% {
+    background-color: var(--accent-color-15, rgba(232, 185, 47, 0.15));
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.animate-highlight {
+  animation: highlight-section 600ms ease-out forwards;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -96,6 +109,16 @@
   --sidebar-accent-foreground: #1d1d1f;
   --sidebar-border: rgba(0, 0, 0, 0.08);
   --sidebar-ring: #0066cc;
+
+  /* Accent color (configurable) */
+  --accent-color: #E8B92F;
+  --accent-foreground: #1d1d1f;
+  --accent-color-10: rgba(232, 185, 47, 0.1);
+  --accent-color-15: rgba(232, 185, 47, 0.15);
+  --accent-color-20: rgba(232, 185, 47, 0.2);
+  --accent-color-30: rgba(232, 185, 47, 0.3);
+  --accent-color-50: rgba(232, 185, 47, 0.5);
+  --accent-color-80: rgba(232, 185, 47, 0.8);
 }
 
 .dark {
@@ -152,6 +175,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  ::selection {
+    background-color: var(--accent-color);
+    color: var(--accent-foreground);
   }
 }
 

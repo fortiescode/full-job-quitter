@@ -1,5 +1,6 @@
 "use client"
 
+import { useCurrency } from "@/components/providers/currency-provider"
 import { formatCurrency } from "@/lib/calculator/utils"
 
 interface FinancialSummaryBarProps {
@@ -15,6 +16,7 @@ export function FinancialSummaryBar({
   obligations,
   compact = false,
 }: FinancialSummaryBarProps) {
+  const currency = useCurrency()
   const net = income - expenses - obligations
 
   const items = [
@@ -35,7 +37,7 @@ export function FinancialSummaryBar({
           )}
           <span className={`text-[#8a8a8a] ${compact ? "text-xs" : "text-sm"}`}>{item.label}</span>
           <span className={`font-semibold ${item.color} ${compact ? "text-sm" : "text-base"}`}>
-            {formatCurrency(item.value)}
+            {formatCurrency(item.value, currency)}
           </span>
         </div>
       ))}

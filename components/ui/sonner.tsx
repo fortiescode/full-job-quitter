@@ -15,13 +15,13 @@ export function Toaster() {
       }}
       icons={{
         success: (
-          <div className="w-5 h-5 rounded-full bg-[#34c759] flex items-center justify-center shrink-0">
-            <Check size={12} strokeWidth={2.5} className="text-white" />
+          <div className="w-5 h-5 rounded-full bg-[var(--accent-color)] flex items-center justify-center shrink-0">
+            <Check size={12} strokeWidth={2.5} className="text-[var(--accent-foreground)]" />
           </div>
         ),
       }}
       closeButton
-      duration={3000}
+      duration={2000}
     />
   )
 }

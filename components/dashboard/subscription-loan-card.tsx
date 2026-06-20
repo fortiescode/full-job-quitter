@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Repeat, Landmark, ArrowUpRight, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Subscription, Loan } from "@/lib/finances/actions"
+import { useCurrency } from "@/components/providers/currency-provider"
 import { formatCurrency } from "@/lib/calculator/utils"
 
 interface SubscriptionLoanCardProps {
@@ -14,6 +15,7 @@ interface SubscriptionLoanCardProps {
 }
 
 export function SubscriptionLoanCard({ subscriptions, loans, compact = false }: SubscriptionLoanCardProps) {
+  const currency = useCurrency()
   const totalSubscriptions = subscriptions.reduce((sum, s) => sum + Number(s.amount), 0)
   const totalLoanRemaining = loans.reduce((sum, l) => sum + Number(l.remaining_amount), 0)
   const totalLoanPayment = loans.reduce((sum, l) => sum + Number(l.monthly_payment), 0)
@@ -47,13 +49,13 @@ export function SubscriptionLoanCard({ subscriptions, loans, compact = false }: 
         <div className={`bg-white/10 rounded-2xl ${compact ? "p-3" : "p-4"}`}>
           <p className={`text-white/60 mb-1 ${compact ? "text-[10px]" : "text-xs"}`}>Monthly subs</p>
           <p className={`font-semibold text-white ${compact ? "text-lg" : "text-xl"}`}>
-            {formatCurrency(totalSubscriptions)}
+            {formatCurrency(totalSubscriptions, currency)}
           </p>
         </div>
         <div className={`bg-white/10 rounded-2xl ${compact ? "p-3" : "p-4"}`}>
           <p className={`text-white/60 mb-1 ${compact ? "text-[10px]" : "text-xs"}`}>Loan remaining</p>
           <p className={`font-semibold text-white ${compact ? "text-lg" : "text-xl"}`}>
-            {formatCurrency(totalLoanRemaining)}
+            {formatCurrency(totalLoanRemaining, currency)}
           </p>
         </div>
       </div>
@@ -77,7 +79,7 @@ export function SubscriptionLoanCard({ subscriptions, loans, compact = false }: 
               </div>
             </div>
             <span className={`font-medium text-white ${compact ? "text-xs" : "text-sm"}`}>
-              {formatCurrency(Number(sub.amount))}
+              {formatCurrency(Number(sub.amount), currency)}
             </span>
           </motion.div>
         ))}
@@ -96,11 +98,11 @@ export function SubscriptionLoanCard({ subscriptions, loans, compact = false }: 
               </div>
               <div>
                 <p className={`font-medium text-white ${compact ? "text-xs" : "text-sm"}`}>{loan.name}</p>
-                <p className={`text-white/50 ${compact ? "text-[10px]" : "text-xs"}`}>{formatCurrency(Number(loan.monthly_payment))}/mo</p>
+                <p className={`text-white/50 ${compact ? "text-[10px]" : "text-xs"}`}>{formatCurrency(Number(loan.monthly_payment), currency)}/mo</p>
               </div>
             </div>
             <span className={`font-medium text-white ${compact ? "text-xs" : "text-sm"}`}>
-              {formatCurrency(Number(loan.remaining_amount))}
+              {formatCurrency(Number(loan.remaining_amount), currency)}
             </span>
           </motion.div>
         ))}
@@ -110,7 +112,7 @@ export function SubscriptionLoanCard({ subscriptions, loans, compact = false }: 
         <div className={`flex items-center justify-between ${compact ? "text-xs" : "text-sm"}`}>
           <span className="text-white/60">Total monthly obligations</span>
           <span className="font-semibold text-white">
-            {formatCurrency(totalSubscriptions + totalLoanPayment)}
+            {formatCurrency(totalSubscriptions + totalLoanPayment, currency)}
           </span>
         </div>
       </div>

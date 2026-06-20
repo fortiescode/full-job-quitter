@@ -98,7 +98,7 @@ export function MilestoneTimeline({ milestones, compact = false }: MilestoneTime
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="h-full bg-[#f5c542] rounded-full"
+            className="h-full bg-[var(--accent-color)] rounded-full"
           />
         </div>
       </div>

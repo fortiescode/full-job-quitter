@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useCurrency } from "@/components/providers/currency-provider"
 import { formatCurrency } from "@/lib/calculator/utils"
 import { upsertFinancialGoal } from "@/lib/financial/actions"
 import { toast } from "sonner"
@@ -95,6 +96,7 @@ export function FinanceManager({
   subscriptions,
   loans,
 }: FinanceManagerProps) {
+  const currency = useCurrency()
   const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -240,38 +242,38 @@ export function FinanceManager({
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="bg-white/60 p-1 rounded-2xl h-auto flex flex-wrap gap-1">
+        <TabsList className="bg-white/60 px-1 py-4 rounded-2xl h-auto inline-flex flex-nowrap gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden scrollbar-none">
           <TabsTrigger
             value="income"
-            className="rounded-xl px-4 py-2 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
           >
             <DollarSign size={16} strokeWidth={1.75} className="mr-2" />
             Income
           </TabsTrigger>
           <TabsTrigger
             value="categories"
-            className="rounded-xl px-4 py-2 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
           >
             <Tag size={16} strokeWidth={1.75} className="mr-2" />
             Categories
           </TabsTrigger>
           <TabsTrigger
             value="expenses"
-            className="rounded-xl px-4 py-2 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
           >
             <Receipt size={16} strokeWidth={1.75} className="mr-2" />
             Expenses
           </TabsTrigger>
           <TabsTrigger
             value="subscriptions"
-            className="rounded-xl px-4 py-2 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
           >
             <Repeat size={16} strokeWidth={1.75} className="mr-2" />
             Subscriptions
           </TabsTrigger>
           <TabsTrigger
             value="loans"
-            className="rounded-xl px-4 py-2 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
           >
             <Landmark size={16} strokeWidth={1.75} className="mr-2" />
             Loans
@@ -303,7 +305,7 @@ export function FinanceManager({
               <Button
                 onClick={handleSaveIncome}
                 disabled={isPending}
-                className="rounded-xl bg-[#f5c542] hover:bg-[#f5c542]/90 text-[#1d1d1f] font-medium"
+                className="rounded-xl bg-(--accent-color) hover:bg-(--accent-color-80) text-accent-foreground font-medium"
               >
                 {isPending ? (
                   <Loader2 className="animate-spin" size={18} strokeWidth={1.75} />
@@ -389,7 +391,7 @@ export function FinanceManager({
                       <div>
                         <p className="font-semibold text-[#1d1d1f]">{category.name}</p>
                         <p className="text-sm text-[#8a8a8a]">
-                          Budget: {formatCurrency(Number(category.budget_limit))}
+                          Budget: {formatCurrency(Number(category.budget_limit), currency)}
                         </p>
                       </div>
                     </div>
@@ -421,7 +423,7 @@ export function FinanceManager({
                   placeholder="Expense name"
                   value={expenseName}
                   onChange={(e) => setExpenseName(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1 min-w-[200px]"
+                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1 min-w-50"
                 />
                 <CurrencyInput
                   placeholder="Amount"
@@ -499,7 +501,7 @@ export function FinanceManager({
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="font-semibold text-[#1d1d1f]">
-                          {formatCurrency(Number(expense.amount))}
+                          {formatCurrency(Number(expense.amount), currency)}
                         </span>
                         <Button
                           variant="ghost"
@@ -590,7 +592,7 @@ export function FinanceManager({
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="font-semibold text-[#1d1d1f]">
-                        {formatCurrency(Number(sub.amount))}
+                        {formatCurrency(Number(sub.amount), currency)}
                       </span>
                       <Button
                         variant="ghost"
@@ -621,7 +623,7 @@ export function FinanceManager({
                   placeholder="Loan name"
                   value={loanName}
                   onChange={(e) => setLoanName(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1 min-w-[200px]"
+                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1 min-w-50"
                 />
                 <CurrencyInput
                   placeholder="Total amount"
@@ -685,13 +687,13 @@ export function FinanceManager({
                     <div>
                       <p className="font-semibold text-[#1d1d1f]">{loan.name}</p>
                       <p className="text-sm text-[#8a8a8a]">
-                        {formatCurrency(Number(loan.remaining_amount))} remaining •{" "}
+                        {formatCurrency(Number(loan.remaining_amount), currency)} remaining •{" "}
                         {loan.interest_rate}% interest
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="font-semibold text-[#1d1d1f]">
-                        {formatCurrency(Number(loan.monthly_payment))}/mo
+                        {formatCurrency(Number(loan.monthly_payment), currency)}/mo
                       </span>
                       <Button
                         variant="ghost"

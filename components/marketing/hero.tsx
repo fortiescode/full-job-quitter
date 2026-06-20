@@ -15,7 +15,7 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
           className="inline-flex items-center gap-2 rounded-full bg-white border border-[#e8e0cc] px-4 py-1.5 mb-8 shadow-sm"
         >
-          <Sparkles size={16} strokeWidth={1.75} className="text-[#f5c542]" />
+          <Sparkles size={16} strokeWidth={1.75} className="text-[var(--accent-color)]" />
           <span className="text-sm font-medium text-[#1d1d1f]">
             Your tool to escape
           </span>
@@ -29,7 +29,7 @@ export function Hero() {
         >
           Quit your 9-to-5
           <br />
-          <span className="text-[#f5c542]">with confidence.</span>
+          <span className="text-[var(--accent-color)]">with confidence.</span>
         </motion.h1>
 
         <motion.p

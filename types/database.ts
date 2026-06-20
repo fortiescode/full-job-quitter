@@ -13,6 +13,7 @@ export type Database = {
           risk_tolerance: "conservative" | "moderate" | "aggressive" | null
           compact_mode: boolean
           email_reminders: boolean
+          currency: string
           created_at: string
           updated_at: string
         }
@@ -25,6 +26,7 @@ export type Database = {
           risk_tolerance?: "conservative" | "moderate" | "aggressive" | null
           compact_mode?: boolean
           email_reminders?: boolean
+          currency?: string
           created_at?: string
           updated_at?: string
         }
@@ -37,6 +39,7 @@ export type Database = {
           risk_tolerance?: "conservative" | "moderate" | "aggressive" | null
           compact_mode?: boolean
           email_reminders?: boolean
+          currency?: string
           created_at?: string
           updated_at?: string
         }
