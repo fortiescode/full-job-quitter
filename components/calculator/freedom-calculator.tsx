@@ -410,7 +410,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
 
   const riskConfig = {
     conservative: { label: "Play it safe", className: "bg-[#e8e0cc] text-[#1d1d1f] hover:bg-[#e8e0cc]/80" },
-    moderate: { label: "Balanced", className: "bg-[#f5c542] text-[#1d1d1f] hover:bg-[#f5c542]/80" },
+    moderate: { label: "Balanced", className: "bg-[var(--accent-color)] text-accent-foreground hover:bg-[var(--accent-color)]/80" },
     aggressive: { label: "Go for it", className: "bg-[#ff9500] text-white hover:bg-[#ff9500]/80" },
   }
 

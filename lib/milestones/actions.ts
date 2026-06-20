@@ -32,7 +32,7 @@ const DEFAULT_MILESTONES: {
   },
   {
     title: "Reach full runway target",
-    description: "Save enough to cover your target runway months.",
+    description: "Save enough to cover your target Months of safety.",
     category: "financial",
     order_index: 3,
   },

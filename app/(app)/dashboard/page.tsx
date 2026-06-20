@@ -115,7 +115,7 @@ export default async function DashboardPage() {
       : "Add your finances to project a date"
 
   const riskTolerance = profile?.data?.risk_tolerance as
-    | "conservative"
+    | "Conservative"
     | "moderate"
     | "aggressive"
     | null
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
 
   const riskConfig = {
     conservative: { label: "Play it safe", className: "bg-[#e8e0cc] text-[#1d1d1f]" },
-    moderate: { label: "Balanced", className: "bg-[#f5c542] text-[#1d1d1f]" },
+    moderate: { label: "Balanced", className: "bg-[var(--accent-color)] text-accent-foreground" },
     aggressive: { label: "Go for it", className: "bg-[#ff9500] text-white" },
   }
   const riskBadge = riskTolerance ? riskConfig[riskTolerance] : null
@@ -217,21 +217,21 @@ export default async function DashboardPage() {
       {/* Escape fund + projection + quit date */}
       <div className={`grid grid-cols-1 lg:grid-cols-12 ${compact ? "gap-3" : "gap-5"}`}>
         {/* Escape fund CTA */}
-        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-[#f5c542] rounded-3xl border-none shadow-sm overflow-hidden">
+        <Card size={compact ? "compact" : "default"} className="lg:col-span-4 bg-[var(--accent-color)] rounded-3xl border-none shadow-sm overflow-hidden">
           <CardContent className={`h-full flex flex-col justify-between ${compact ? "p-5" : "p-8"}`}>
             <div>
               <div className={`rounded-2xl bg-white/30 flex items-center justify-center ${compact ? "w-14 h-14 mb-4" : "w-16 h-16 mb-6"}`}>
-                <Wallet size={compact ? 28 : 32} strokeWidth={1.75} className="text-[#1d1d1f]" />
+                <Wallet size={compact ? 28 : 32} strokeWidth={1.75} className="text-accent-foreground" />
               </div>
-              <h3 className={`font-semibold text-[#1d1d1f] mb-2 ${compact ? "text-xl" : "text-2xl"}`}>
+              <h3 className={`font-semibold text-accent-foreground mb-2 ${compact ? "text-xl" : "text-2xl"}`}>
                 Your escape fund
               </h3>
-              <p className={`text-[#1d1d1f]/70 ${compact ? "text-sm" : ""}`}>
+              <p className={`text-accent-foreground/70 ${compact ? "text-sm" : ""}`}>
                 Track every dollar that brings you closer to quitting.
               </p>
             </div>
             <Link href="/finances">
-              <Button className={`rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white ${compact ? "mt-4 h-10" : "mt-6"}`}>
+              <Button className={`rounded-xl bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-accent-foreground ${compact ? "mt-4 h-10" : "mt-6"}`}>
                 Manage finances
                 <ArrowUpRight size={16} strokeWidth={1.75} className="ml-2" />
               </Button>
@@ -330,7 +330,7 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2">
             <LastUpdated date={expenseUpdatedAt} />
             <Link href="/finances">
-              <Button variant="ghost" className={`rounded-xl text-[#8a8a8a] ${compact ? "h-8 text-sm" : ""}`}>
+              <Button className={`rounded-xl bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-accent-foreground ${compact ? "h-8 text-sm" : ""}`}>
                 Manage
               </Button>
             </Link>
@@ -360,8 +360,7 @@ export default async function DashboardPage() {
               <CardAction>
                 <Link href="/finances?tab=expenses">
                   <Button
-                    variant="outline"
-                    className={`rounded-xl border-[#e8e0cc] bg-white hover:bg-[#f8f1de] text-[#1d1d1f] ${compact ? "h-8 text-xs" : "h-9"}`}
+                    className={`rounded-xl bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-accent-foreground ${compact ? "h-8 text-xs" : "h-9"}`}
                   >
                     <Plus size={compact ? 14 : 16} strokeWidth={1.75} className="mr-1.5" />
                     Add expense
@@ -385,7 +384,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className={compact ? "space-y-4 pt-2" : "space-y-6"}>
             <div className="flex items-center justify-between">
-              <span className={`text-[#8a8a8a] ${compact ? "text-sm" : ""}`}>Monthly runway target</span>
+              <span className={`text-[#8a8a8a] ${compact ? "text-sm" : ""}`}>Months of safety</span>
               <span className={`font-semibold text-[#1d1d1f] ${compact ? "text-sm" : ""}`}>
                 {goal?.target_runway_months ?? 0} months
               </span>
@@ -422,7 +421,7 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2">
             <LastUpdated date={milestoneUpdatedAt} />
             <Link href="/milestones">
-              <Button variant="ghost" className={`rounded-xl text-[#8a8a8a] ${compact ? "h-8 text-sm" : ""}`}>
+              <Button className={`rounded-xl bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-accent-foreground ${compact ? "h-8 text-sm" : ""}`}>
                 View all
               </Button>
             </Link>
@@ -435,7 +434,7 @@ export default async function DashboardPage() {
                 No milestones yet. Create your roadmap to quitting.
               </p>
               <Link href="/milestones">
-                <Button className="rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white">
+                <Button className="rounded-xl bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-accent-foreground">
                   Add milestones
                 </Button>
               </Link>

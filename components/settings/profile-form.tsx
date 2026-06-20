@@ -577,7 +577,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
                 <Flag size={20} strokeWidth={1.75} />
-                Escape plan
+                Your quit plan
               </CardTitle>
               <SectionStatusIndicator
                 status={statuses.escape}
@@ -675,7 +675,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
               <div className="bg-[#f8f1de] rounded-2xl p-4 space-y-2">
                 <Label className="text-[#1d1d1f] flex items-center gap-2">
                   <PiggyBank size={14} strokeWidth={1.75} />
-                  Total target savings
+                  What you need saved before you quit
                 </Label>
                 <p
                   className={`${
@@ -713,7 +713,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
             className={`bg-white rounded-3xl shadow-sm transition-all duration-200 ${
               statuses.motivation === "error"
                 ? "border-l-[3px] border-l-[#ff3b30] border-solid"
-                : "border-l-4 border-l-[#f5c542]"
+                : "border-l-4 border-l-[var(--accent-color)]"
             }`}
           >
             <CardHeader className="flex flex-row items-center justify-between">

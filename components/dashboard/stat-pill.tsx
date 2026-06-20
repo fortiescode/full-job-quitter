@@ -11,7 +11,7 @@ export function StatPill({ label, value, variant = "default", compact = false }:
   const variants = {
     default: "bg-white text-[#1d1d1f]",
     dark: "bg-[#1d1d1f] text-white",
-    accent: "bg-[#f5c542] text-[#1d1d1f]",
+    accent: "bg-[var(--accent-color)] text-accent-foreground",
   }
 
   return (

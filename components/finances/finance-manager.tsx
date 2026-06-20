@@ -9,7 +9,6 @@ import {
   Receipt,
   Repeat,
   Landmark,
-  Plus,
   Trash2,
   Loader2,
   DollarSign,
@@ -242,40 +241,45 @@ export function FinanceManager({
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="bg-white/60 px-1 py-4 rounded-2xl h-auto inline-flex flex-nowrap gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden scrollbar-none">
+        <TabsList className="bg-white p-1.5 rounded-2xl h-auto inline-flex w-full sm:w-fit gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden scrollbar-none shadow-sm border border-[#e8e0cc]">
           <TabsTrigger
             value="income"
-            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            style={{ height: "3rem" }}
+            className="flex-1 sm:flex-none px-4 sm:px-5 rounded-2xl text-sm font-medium text-[#8a8a8a] transition-all duration-200 hover:text-[#1d1d1f] data-[state=active]:bg-[var(--accent-color)] data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm"
           >
-            <DollarSign size={16} strokeWidth={1.75} className="mr-2" />
+            <DollarSign size={15} strokeWidth={1.75}  />
             Income
           </TabsTrigger>
           <TabsTrigger
             value="categories"
-            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            style={{ height: "3rem" }}
+            className="flex-1 sm:flex-none px-4 sm:px-5 rounded-2xl text-sm font-medium text-[#8a8a8a] transition-all duration-200 hover:text-[#1d1d1f] data-[state=active]:bg-[var(--accent-color)] data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm"
           >
-            <Tag size={16} strokeWidth={1.75} className="mr-2" />
+            <Tag size={15} strokeWidth={1.75}  />
             Categories
           </TabsTrigger>
           <TabsTrigger
             value="expenses"
-            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            style={{ height: "3rem" }}
+            className="flex-1 sm:flex-none px-4 sm:px-5 rounded-2xl text-sm font-medium text-[#8a8a8a] transition-all duration-200 hover:text-[#1d1d1f] data-[state=active]:bg-[var(--accent-color)] data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm"
           >
-            <Receipt size={16} strokeWidth={1.75} className="mr-2" />
+            <Receipt size={15} strokeWidth={1.75}  />
             Expenses
           </TabsTrigger>
           <TabsTrigger
             value="subscriptions"
-            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            style={{ height: "3rem" }}
+            className="flex-1 sm:flex-none px-4 sm:px-5 rounded-2xl text-sm font-medium text-[#8a8a8a] transition-all duration-200 hover:text-[#1d1d1f] data-[state=active]:bg-[var(--accent-color)] data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm"
           >
-            <Repeat size={16} strokeWidth={1.75} className="mr-2" />
+            <Repeat size={15} strokeWidth={1.75}  />
             Subscriptions
           </TabsTrigger>
           <TabsTrigger
             value="loans"
-            className="rounded-xl px-4 py-6 data-[state=active]:bg-[#1d1d1f] data-[state=active]:text-white"
+            style={{ height: "3rem" }}
+            className="flex-1 sm:flex-none px-4 sm:px-5 rounded-2xl text-sm font-medium text-[#8a8a8a] transition-all duration-200 hover:text-[#1d1d1f] data-[state=active]:bg-[var(--accent-color)] data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm"
           >
-            <Landmark size={16} strokeWidth={1.75} className="mr-2" />
+            <Landmark size={15} strokeWidth={1.75}  />
             Loans
           </TabsTrigger>
         </TabsList>
@@ -340,17 +344,22 @@ export function FinanceManager({
                 />
                 <Select value={categoryColor} onValueChange={setCategoryColor}>
                   <SelectTrigger className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 w-full md:w-48">
-                    <SelectValue placeholder="Color" />
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full shrink-0"
+                        style={{ background: categoryColor }}
+                      />
+                      <span className="text-[#8a8a8a]">Color</span>
+                    </div>
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
+                  <SelectContent className="rounded-xl" position="popper" sideOffset={4}>
                     {PRESET_COLORS.map((color) => (
                       <SelectItem key={color} value={color}>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-full min-w-[6rem] py-1">
                           <div
-                            className="w-4 h-4 rounded-full"
+                            className="w-5 h-5 rounded-full"
                             style={{ background: color }}
                           />
-                          {color}
                         </div>
                       </SelectItem>
                     ))}
@@ -361,7 +370,6 @@ export function FinanceManager({
                   disabled={isPending || !categoryName.trim()}
                   className="h-12 rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white px-6"
                 >
-                  <Plus size={18} strokeWidth={1.75} className="mr-2" />
                   Add
                 </Button>
               </form>
@@ -463,7 +471,6 @@ export function FinanceManager({
                   disabled={isPending || !expenseName.trim() || !expenseAmount}
                   className="h-12 rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white px-6"
                 >
-                  <Plus size={18} strokeWidth={1.75} className="mr-2" />
                   Add
                 </Button>
               </form>
@@ -562,7 +569,6 @@ export function FinanceManager({
                   disabled={isPending || !subName.trim() || !subAmount}
                   className="h-12 rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white px-6"
                 >
-                  <Plus size={18} strokeWidth={1.75} className="mr-2" />
                   Add
                 </Button>
               </form>
@@ -662,7 +668,6 @@ export function FinanceManager({
                   disabled={isPending || !loanName.trim() || !loanTotal}
                   className="h-12 rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white px-6"
                 >
-                  <Plus size={18} strokeWidth={1.75} className="mr-2" />
                   Add
                 </Button>
               </form>
