@@ -47,7 +47,7 @@ function NavLink({
     <Link key={href} href={href} title={label}>
       <Button
         variant="ghost"
-        className={`relative w-full h-11 rounded-r-xl rounded-l-none transition-all duration-150 border-l-[3px] ${
+        className={`relative w-full h-11 rounded-xl transition-all duration-150 border-l-[3px] ${
           isActive
             ? "bg-[#f8f7f5] text-[#1d1d1f] border-[var(--accent-color)]"
             : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"
@@ -105,7 +105,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
                   className="flex items-center"
                 >
                   <Image
-                    src="/logo2-icon.png"
+                    src="/fjq-logo.png"
                     alt="full-jog-quitter logo"
                     width={70}
                     height={70}
@@ -129,7 +129,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
                   className="flex items-center justify-center"
                 >
                   <Image
-                    src="/logo2-icon.png"
+                    src="/fjq-logo.png"
                     alt="full-jog-quitter logo"
                     width={40}
                     height={40}
@@ -188,7 +188,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
           <Link href="/settings" title="Settings">
             <Button
               variant="ghost"
-              className={`w-full h-11 rounded-r-xl rounded-l-none transition-all duration-150 border-l-[3px] ${
+              className={`w-full h-11 rounded-xl transition-all duration-150 border-l-[3px] ${
                 isSettingsActive
                   ? "bg-[#f8f7f5] text-[#1d1d1f] border-[var(--accent-color)]"
                   : "text-[#1d1d1f] hover:bg-[#f8f1de] border-transparent"

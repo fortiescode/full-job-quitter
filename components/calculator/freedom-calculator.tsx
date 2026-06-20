@@ -343,6 +343,8 @@ function QuitFasterTips({
 }
 
 export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalculatorProps) {
+  const currency = useCurrency()
+
   // Working state
   const [monthlySalary, setMonthlySalary] = useState(
     Number(initialGoal?.monthly_income) || 0

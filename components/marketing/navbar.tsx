@@ -17,7 +17,7 @@ export function Navbar() {
         <div className="bg-white/80 backdrop-blur-xl border border-[#e8e0cc] rounded-2xl px-5 py-3 max-w-7xl mx-auto flex items-center justify-between shadow-sm">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo2-icon.png"
+              src="/fjq-logo.png"
               alt="full-jog-quitter logo"
               width={60}
               height={60}
