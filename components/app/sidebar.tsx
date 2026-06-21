@@ -96,7 +96,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
             className="flex items-center justify-center"
           >
             <Image
-              src="/fjq-logo.png"
+              src="/trans-logo.png"
               alt="full-jog-quitter logo"
               width={40}
               height={40}

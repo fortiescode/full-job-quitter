@@ -17,7 +17,7 @@ export function Navbar() {
         <div className="glass-card rounded-2xl px-5 py-3 max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image
-              src="/fjq-logo.png"
+              src="/trans-logo.png"
               alt="full-jog-quitter logo"
               width={60}
               height={60}

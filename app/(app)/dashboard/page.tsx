@@ -77,7 +77,7 @@ export default async function DashboardPage() {
   const milestoneUpdatedAt = latestTimestamp(milestones)
 
   const monthlyIncome = Number(goal?.monthly_income) || 0
-  const netSavings = monthlyIncome - totalExpenses
+  const netSavings = monthlyIncome - totalExpenses - totalSubscriptions - totalLoanPayments
 
   const expensesByCategory: Record<string, number> = {}
   expenses.forEach((expense) => {
@@ -142,7 +142,7 @@ export default async function DashboardPage() {
       <div className={compact ? "space-y-3" : "space-y-4"}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <WelcomeHeader name={fullName} avatarUrl={avatarUrl} compact={compact} />
-          <div className={`flex flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
+          <div className={`grid grid-cols-2 sm:flex sm:flex-wrap ${compact ? "gap-2" : "gap-3"}`}>
             <StatPill label="Income" value={formatCurrency(monthlyIncome, currency)} variant="default" compact={compact} />
             <StatPill label="Expenses" value={formatCurrency(totalExpenses, currency)} variant="dark" compact={compact} />
             <StatPill label="Net savings" value={formatCurrency(netSavings, currency)} variant="accent" compact={compact} />

@@ -9,14 +9,15 @@ interface StatPillProps {
 
 export function StatPill({ label, value, variant = "default", compact = false }: StatPillProps) {
   const variants = {
-    default: "bg-white text-[#1d1d1f]",
-    dark: "bg-[#1d1d1f] text-white",
-    accent: "bg-[var(--accent-color)] text-accent-foreground",
+    default: "glass-card text-[#1d1d1f]",
+    dark: "glass-card-dark text-white",
+    accent:
+      "bg-[var(--accent-color)]/55 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.08)] text-accent-foreground",
   }
 
   return (
     <div
-      className={`flex flex-col rounded-2xl shadow-sm ${variants[variant]} ${
+      className={`flex flex-col rounded-2xl ${variants[variant]} ${
         compact ? "px-3 py-1.5" : "px-5 py-3"
       }`}
     >

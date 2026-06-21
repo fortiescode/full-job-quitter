@@ -120,7 +120,7 @@ export function AuthForm({ defaultMode = "sign-in" }: AuthFormProps) {
         <CardHeader className="space-y-1 text-center p-8">
           <div className="flex justify-center mb-2">
             <Image
-              src="/fjq-logo.png"
+              src="/trans-logo.png"
               alt="full-jog-quitter logo"
               width={94}
               height={94}

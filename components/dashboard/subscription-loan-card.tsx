@@ -98,11 +98,13 @@ export function SubscriptionLoanCard({ subscriptions, loans, compact = false }: 
               </div>
               <div>
                 <p className={`font-medium text-white ${compact ? "text-xs" : "text-sm"}`}>{loan.name}</p>
-                <p className={`text-white/50 ${compact ? "text-[10px]" : "text-xs"}`}>{formatCurrency(Number(loan.monthly_payment), currency)}/mo</p>
+                <p className={`text-white/50 ${compact ? "text-[10px]" : "text-xs"}`}>
+                  {formatCurrency(Number(loan.remaining_amount), currency)} remaining
+                </p>
               </div>
             </div>
             <span className={`font-medium text-white ${compact ? "text-xs" : "text-sm"}`}>
-              {formatCurrency(Number(loan.remaining_amount), currency)}
+              {formatCurrency(Number(loan.monthly_payment), currency)}
             </span>
           </motion.div>
         ))}
