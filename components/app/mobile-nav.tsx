@@ -34,7 +34,7 @@ export function MobileNav() {
   return (
     <>
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 p-4">
-        <div className="bg-white/80 backdrop-blur-xl border border-[#e8e0cc] rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm">
+        <div className="glass-card rounded-2xl px-4 py-3 flex items-center justify-between">
           <Link
             href="/"
             className="text-lg font-semibold tracking-tight text-[#1d1d1f]"

@@ -147,7 +147,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
 
   if (!hasMilestones) {
     return (
-      <Card className="bg-white rounded-3xl border-none shadow-sm p-10 text-center">
+      <Card className="glass-card rounded-3xl p-10 text-center">
         <div className="w-16 h-16 rounded-2xl bg-[#1d1d1f]/10 flex items-center justify-center mx-auto mb-6">
           <Route size={28} strokeWidth={1.75} className="text-[#f5c542]" />
         </div>
@@ -264,14 +264,14 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
                 transition={{ delay: index * 0.05 }}
               >
                 <Card
-                  className={`rounded-3xl border-none shadow-sm border-l-4 transition-all duration-200 ${
-                    isFlashing ? "bg-[#f5c542]/20" : "bg-white"
+                  className={`rounded-3xl border-l-4 transition-all duration-200 ${
+                    isFlashing ? "bg-[var(--accent-color)]/20 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.08)]" : "glass-card"
                   } ${
                     isCompleted ? "opacity-75" : "opacity-100"
                   } ${
                     isCompleted
                       ? "border-l-[#34c759]"
-                      : "border-l-[#f5c542]"
+                      : "border-l-[var(--accent-color)]"
                   }`}
                 >
                   <CardContent className="p-5 flex items-start gap-4">

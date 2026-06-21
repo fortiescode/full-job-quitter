@@ -116,7 +116,7 @@ export function AuthForm({ defaultMode = "sign-in" }: AuthFormProps) {
       transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       className="w-full max-w-md"
     >
-      <Card className="bg-white shadow-sm rounded-2xl overflow-hidden">
+      <Card className="glass-card rounded-2xl overflow-hidden">
         <CardHeader className="space-y-1 text-center p-8">
           <div className="flex justify-center mb-2">
             <Image

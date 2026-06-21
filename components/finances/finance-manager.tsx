@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition, useEffect, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CurrencyInput } from "@/components/ui/currency-input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -59,9 +60,9 @@ function EmptyState({
   children?: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-12 px-6 bg-white rounded-3xl border-none shadow-sm">
-      <div className="w-14 h-14 rounded-2xl bg-[#f8f1de] flex items-center justify-center mb-4">
-        <Icon size={28} strokeWidth={1.75} className="text-[#f5c542]" />
+    <div className="flex flex-col items-center justify-center text-center py-12 px-6 glass-card rounded-3xl">
+      <div className="w-14 h-14 rounded-2xl bg-[var(--accent-color)]/15 flex items-center justify-center mb-4">
+        <Icon size={28} strokeWidth={1.75} className="text-[var(--accent-color)]" />
       </div>
       <h3 className="text-lg font-semibold text-[#1d1d1f] mb-2">{title}</h3>
       {children && <p className="text-sm text-[#8a8a8a] max-w-sm">{children}</p>}
@@ -70,14 +71,14 @@ function EmptyState({
 }
 
 const PRESET_COLORS = [
-  "#0066cc",
-  "#34c759",
-  "#ff9500",
-  "#ff3b30",
-  "#af52de",
-  "#5856d6",
-  "#ff2d55",
-  "#5ac8fa",
+  { value: "#0066cc", name: "Blue" },
+  { value: "#34c759", name: "Green" },
+  { value: "#ff9500", name: "Orange" },
+  { value: "#ff3b30", name: "Red" },
+  { value: "#af52de", name: "Purple" },
+  { value: "#5856d6", name: "Indigo" },
+  { value: "#ff2d55", name: "Pink" },
+  { value: "#5ac8fa", name: "Sky" },
 ]
 
 interface FinanceManagerProps {
@@ -124,7 +125,7 @@ export function FinanceManager({
 
   // Category form
   const [categoryName, setCategoryName] = useState("")
-  const [categoryColor, setCategoryColor] = useState(PRESET_COLORS[0])
+  const [categoryColor, setCategoryColor] = useState(PRESET_COLORS[0].value)
   const [categoryBudget, setCategoryBudget] = useState("")
 
   // Expense form
@@ -149,6 +150,54 @@ export function FinanceManager({
   const [loanPayment, setLoanPayment] = useState("")
   const [loanRate, setLoanRate] = useState("")
   const [loanDueDate, setLoanDueDate] = useState("")
+
+  // Undo-able deletes: hide immediately, actually delete after a grace period
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set())
+  const pendingDeleteRef = useRef<Map<string, { timeout: ReturnType<typeof setTimeout>; run: () => void }>>(new Map())
+
+  useEffect(() => {
+    const pending = pendingDeleteRef.current
+    return () => {
+      pending.forEach(({ timeout, run }) => {
+        clearTimeout(timeout)
+        run()
+      })
+    }
+  }, [])
+
+  function deleteWithUndo(id: string, label: string, deleteFn: (id: string) => Promise<unknown>) {
+    setPendingDeleteIds((prev) => new Set(prev).add(id))
+
+    const run = () => {
+      startTransition(async () => {
+        await deleteFn(id)
+      })
+    }
+
+    const timeout = setTimeout(() => {
+      run()
+      pendingDeleteRef.current.delete(id)
+    }, 5000)
+    pendingDeleteRef.current.set(id, { timeout, run })
+
+    toast(`${label} deleted`, {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          const pending = pendingDeleteRef.current.get(id)
+          if (pending) {
+            clearTimeout(pending.timeout)
+            pendingDeleteRef.current.delete(id)
+          }
+          setPendingDeleteIds((prev) => {
+            const next = new Set(prev)
+            next.delete(id)
+            return next
+          })
+        },
+      },
+    })
+  }
 
   function handleSaveIncome() {
     startTransition(async () => {
@@ -229,6 +278,19 @@ export function FinanceManager({
     })
   }
 
+  const visibleCategories = categories.filter((c) => !pendingDeleteIds.has(c.id))
+  const visibleExpenses = expenses.filter((e) => !pendingDeleteIds.has(e.id))
+  const visibleSubscriptions = subscriptions.filter((s) => !pendingDeleteIds.has(s.id))
+  const visibleLoans = loans.filter((l) => !pendingDeleteIds.has(l.id))
+
+  const spentByCategory: Record<string, number> = {}
+  expenses.forEach((expense) => {
+    if (expense.category_id) {
+      spentByCategory[expense.category_id] =
+        (spentByCategory[expense.category_id] || 0) + Number(expense.amount)
+    }
+  })
+
   return (
     <div className="space-y-6">
       <div>
@@ -285,12 +347,12 @@ export function FinanceManager({
         </TabsList>
 
         <TabsContent value="income" className="mt-6 space-y-4">
-          {monthlyIncome === 0 && (
+          {!goal && (
             <EmptyState icon={Wallet} title="Start tracking your income">
               Add your main monthly income so the dashboard can project your quit date.
             </EmptyState>
           )}
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
+          <Card className="glass-card rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
                 <Wallet size={18} strokeWidth={1.75} />
@@ -309,7 +371,7 @@ export function FinanceManager({
               <Button
                 onClick={handleSaveIncome}
                 disabled={isPending}
-                className="rounded-xl bg-(--accent-color) hover:bg-(--accent-color-80) text-accent-foreground font-medium"
+                className="h-12 rounded-xl bg-[#1d1d1f] hover:bg-[#1d1d1f]/90 text-white px-6"
               >
                 {isPending ? (
                   <Loader2 className="animate-spin" size={18} strokeWidth={1.75} />
@@ -322,49 +384,61 @@ export function FinanceManager({
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6 space-y-4">
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
+          <Card className="glass-card rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-[#1d1d1f]">
                 Add category
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleAddCategory} className="flex flex-col md:flex-row gap-3">
-                <Input
-                  placeholder="Category name"
-                  value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1"
-                />
-                <CurrencyInput
-                  placeholder="Budget limit"
-                  value={categoryBudget}
-                  onChange={(value) => setCategoryBudget(String(value))}
-                  className="md:w-40"
-                />
-                <Select value={categoryColor} onValueChange={setCategoryColor}>
-                  <SelectTrigger className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 w-full md:w-48">
+              <form onSubmit={handleAddCategory} className="flex flex-col md:flex-row gap-3 md:items-end">
+                <div className="flex flex-col gap-1.5 flex-1">
+                  <Label htmlFor="category-name">Category name</Label>
+                  <Input
+                    id="category-name"
+                    placeholder="e.g. Rent"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-40">
+                  <Label htmlFor="category-budget">Budget limit</Label>
+                  <CurrencyInput
+                    id="category-budget"
+                    value={categoryBudget}
+                    onChange={(value) => setCategoryBudget(String(value))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-48">
+                  <Label htmlFor="category-color">Color</Label>
+                  <Select value={categoryColor} onValueChange={setCategoryColor}>
+                  <SelectTrigger id="category-color" className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 w-full">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-4 h-4 rounded-full shrink-0"
                         style={{ background: categoryColor }}
                       />
-                      <span className="text-[#8a8a8a]">Color</span>
+                      <span className="text-[#8a8a8a]">
+                        {PRESET_COLORS.find((c) => c.value === categoryColor)?.name ?? "Color"}
+                      </span>
                     </div>
                   </SelectTrigger>
                   <SelectContent className="rounded-xl" position="popper" sideOffset={4}>
                     {PRESET_COLORS.map((color) => (
-                      <SelectItem key={color} value={color}>
-                        <div className="flex items-center justify-center w-full min-w-[6rem] py-1">
+                      <SelectItem key={color.value} value={color.value}>
+                        <div className="flex items-center gap-2 w-full min-w-[8rem]">
                           <div
-                            className="w-5 h-5 rounded-full"
-                            style={{ background: color }}
+                            className="w-4 h-4 rounded-full shrink-0"
+                            style={{ background: color.value }}
                           />
+                          <span>{color.name}</span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
+                  </Select>
+                </div>
                 <Button
                   type="submit"
                   disabled={isPending || !categoryName.trim()}
@@ -376,93 +450,138 @@ export function FinanceManager({
             </CardContent>
           </Card>
 
-          {categories.length === 0 && (
+          {visibleCategories.length === 0 && (
             <EmptyState icon={Tag} title="Start tracking your categories">
               Create categories like Rent, Food, and Subscriptions to organize your spending.
             </EmptyState>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map((category) => (
+            {visibleCategories.map((category) => {
+              const spent = spentByCategory[category.id] || 0
+              const budget = Number(category.budget_limit)
+              const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0
+              const isOver = budget > 0 && spent > budget
+              return (
               <motion.div
                 key={category.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white rounded-3xl border-none shadow-sm">
-                  <CardContent className="p-5 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-4 h-10 rounded-full"
-                        style={{ background: category.color }}
-                      />
-                      <div>
-                        <p className="font-semibold text-[#1d1d1f]">{category.name}</p>
-                        <p className="text-sm text-[#8a8a8a]">
-                          Budget: {formatCurrency(Number(category.budget_limit), currency)}
-                        </p>
+                <Card className="glass-card rounded-3xl">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-4 h-10 rounded-full"
+                          style={{ background: category.color }}
+                        />
+                        <div>
+                          <p className="font-semibold text-[#1d1d1f]">{category.name}</p>
+                          {budget > 0 ? (
+                            <p className="text-sm text-[#8a8a8a]">
+                              {formatCurrency(spent, currency)} of {formatCurrency(budget, currency)} spent
+                            </p>
+                          ) : (
+                            <p className="text-sm text-[#8a8a8a]">
+                              {formatCurrency(spent, currency)} spent this month
+                            </p>
+                          )}
+                        </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteWithUndo(category.id, "Category", deleteCategory)}
+                        className="rounded-xl text-[#8a8a8a] hover:text-[#ff3b30]"
+                      >
+                        <Trash2 size={16} strokeWidth={1.75} />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => startTransition(async () => { await deleteCategory(category.id) })}
-                      className="rounded-xl text-[#8a8a8a] hover:text-[#ff3b30]"
-                    >
-                      <Trash2 size={16} strokeWidth={1.75} />
-                    </Button>
+                    {budget > 0 && (
+                      <div className="h-1.5 bg-[#f8f1de] rounded-full overflow-hidden mt-3">
+                        <div
+                          className={`h-full rounded-full ${isOver ? "bg-[#ff3b30]" : "bg-[var(--accent-color)]"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+              )
+            })}
           </div>
         </TabsContent>
 
         <TabsContent value="expenses" className="mt-6 space-y-4">
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
+          <Card className="glass-card rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-[#1d1d1f]">
                 Add expense
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleAddExpense} className="flex flex-col md:flex-row gap-3 flex-wrap">
-                <Input
-                  placeholder="Expense name"
-                  value={expenseName}
-                  onChange={(e) => setExpenseName(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1 min-w-50"
-                />
-                <CurrencyInput
-                  placeholder="Amount"
-                  value={expenseAmount}
-                  onChange={(value) => setExpenseAmount(String(value))}
-                  className="md:w-32"
-                />
-                <Select value={expenseCategory} onValueChange={setExpenseCategory}>
-                  <SelectTrigger className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 md:w-48">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="date"
-                  value={expenseDate}
-                  onChange={(e) => setExpenseDate(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 md:w-44"
-                />
+              <form onSubmit={handleAddExpense} className="flex flex-col md:flex-row gap-3 flex-wrap md:items-end">
+                <div className="flex flex-col gap-1.5 flex-1 min-w-50">
+                  <Label htmlFor="expense-name">Expense name</Label>
+                  <Input
+                    id="expense-name"
+                    placeholder="e.g. Groceries"
+                    value={expenseName}
+                    onChange={(e) => setExpenseName(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-32">
+                  <Label htmlFor="expense-amount">Amount</Label>
+                  <CurrencyInput
+                    id="expense-amount"
+                    value={expenseAmount}
+                    onChange={(value) => setExpenseAmount(String(value))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-48">
+                  <Label htmlFor="expense-category">Category</Label>
+                  <Select value={expenseCategory} onValueChange={setExpenseCategory}>
+                    <SelectTrigger id="expense-category" className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 w-full">
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {categories.length === 0 && (
+                    <p className="text-xs text-[#8a8a8a]">
+                      No categories yet —{" "}
+                      <button
+                        type="button"
+                        onClick={() => handleTabChange("categories")}
+                        className="text-[var(--accent-color)] hover:underline"
+                      >
+                        add one
+                      </button>
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-44">
+                  <Label htmlFor="expense-date">Date</Label>
+                  <Input
+                    id="expense-date"
+                    type="date"
+                    value={expenseDate}
+                    onChange={(e) => setExpenseDate(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
                 <label className="flex items-center gap-2 h-12 px-3">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={expenseRecurring}
-                    onChange={(e) => setExpenseRecurring(e.target.checked)}
-                    className="size-4 rounded border-gray-300"
+                    onCheckedChange={(checked) => setExpenseRecurring(checked === true)}
                   />
                   <span className="text-sm text-[#1d1d1f]">Recurring</span>
                 </label>
@@ -477,14 +596,14 @@ export function FinanceManager({
             </CardContent>
           </Card>
 
-          {expenses.length === 0 && (
+          {visibleExpenses.length === 0 && (
             <EmptyState icon={Receipt} title="Start tracking your expenses">
               Record your first expense to see where your money goes each month.
             </EmptyState>
           )}
 
           <div className="space-y-3">
-            {expenses.map((expense) => {
+            {visibleExpenses.map((expense) => {
               const category = categories.find((c) => c.id === expense.category_id)
               return (
                 <motion.div
@@ -492,7 +611,7 @@ export function FinanceManager({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <Card className="bg-white rounded-3xl border-none shadow-sm">
+                  <Card className="glass-card rounded-3xl">
                     <CardContent className="p-5 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div
@@ -513,7 +632,7 @@ export function FinanceManager({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => startTransition(async () => { await deleteExpense(expense.id) })}
+                          onClick={() => deleteWithUndo(expense.id, "Expense", deleteExpense)}
                           className="rounded-xl text-[#8a8a8a] hover:text-[#ff3b30]"
                         >
                           <Trash2 size={16} strokeWidth={1.75} />
@@ -528,42 +647,54 @@ export function FinanceManager({
         </TabsContent>
 
         <TabsContent value="subscriptions" className="mt-6 space-y-4">
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
+          <Card className="glass-card rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-[#1d1d1f]">
                 Add subscription
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleAddSubscription} className="flex flex-col md:flex-row gap-3">
-                <Input
-                  placeholder="Subscription name"
-                  value={subName}
-                  onChange={(e) => setSubName(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1"
-                />
-                <CurrencyInput
-                  placeholder="Amount"
-                  value={subAmount}
-                  onChange={(value) => setSubAmount(String(value))}
-                  className="md:w-32"
-                />
-                <Select value={subFrequency} onValueChange={(v) => setSubFrequency(v as "monthly" | "yearly")}>
-                  <SelectTrigger className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 md:w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="date"
-                  placeholder="Next due date"
-                  value={subDueDate}
-                  onChange={(e) => setSubDueDate(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 md:w-44"
-                />
+              <form onSubmit={handleAddSubscription} className="flex flex-col md:flex-row gap-3 flex-wrap md:items-end">
+                <div className="flex flex-col gap-1.5 flex-1 min-w-50">
+                  <Label htmlFor="sub-name">Subscription name</Label>
+                  <Input
+                    id="sub-name"
+                    placeholder="e.g. Netflix"
+                    value={subName}
+                    onChange={(e) => setSubName(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-32">
+                  <Label htmlFor="sub-amount">Amount</Label>
+                  <CurrencyInput
+                    id="sub-amount"
+                    value={subAmount}
+                    onChange={(value) => setSubAmount(String(value))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-40">
+                  <Label htmlFor="sub-frequency">Frequency</Label>
+                  <Select value={subFrequency} onValueChange={(v) => setSubFrequency(v as "monthly" | "yearly")}>
+                    <SelectTrigger id="sub-frequency" className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-44">
+                  <Label htmlFor="sub-due-date">Next due date</Label>
+                  <Input
+                    id="sub-due-date"
+                    type="date"
+                    value={subDueDate}
+                    onChange={(e) => setSubDueDate(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
                 <Button
                   type="submit"
                   disabled={isPending || !subName.trim() || !subAmount}
@@ -575,20 +706,20 @@ export function FinanceManager({
             </CardContent>
           </Card>
 
-          {subscriptions.length === 0 && (
+          {visibleSubscriptions.length === 0 && (
             <EmptyState icon={Repeat} title="Start tracking your subscriptions">
               Add recurring payments like Netflix, gym, or software subscriptions.
             </EmptyState>
           )}
 
           <div className="space-y-3">
-            {subscriptions.map((sub) => (
+            {visibleSubscriptions.map((sub) => (
               <motion.div
                 key={sub.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white rounded-3xl border-none shadow-sm">
+                <Card className="glass-card rounded-3xl">
                   <CardContent className="p-5 flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-[#1d1d1f]">{sub.name}</p>
@@ -603,7 +734,7 @@ export function FinanceManager({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => startTransition(async () => { await deleteSubscription(sub.id) })}
+                        onClick={() => deleteWithUndo(sub.id, "Subscription", deleteSubscription)}
                         className="rounded-xl text-[#8a8a8a] hover:text-[#ff3b30]"
                       >
                         <Trash2 size={16} strokeWidth={1.75} />
@@ -617,52 +748,70 @@ export function FinanceManager({
         </TabsContent>
 
         <TabsContent value="loans" className="mt-6 space-y-4">
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
+          <Card className="glass-card rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-[#1d1d1f]">
                 Add loan
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleAddLoan} className="flex flex-col md:flex-row gap-3 flex-wrap">
-                <Input
-                  placeholder="Loan name"
-                  value={loanName}
-                  onChange={(e) => setLoanName(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 flex-1 min-w-50"
-                />
-                <CurrencyInput
-                  placeholder="Total amount"
-                  value={loanTotal}
-                  onChange={(value) => setLoanTotal(String(value))}
-                  className="md:w-36"
-                />
-                <CurrencyInput
-                  placeholder="Remaining"
-                  value={loanRemaining}
-                  onChange={(value) => setLoanRemaining(String(value))}
-                  className="md:w-36"
-                />
-                <CurrencyInput
-                  placeholder="Monthly payment"
-                  value={loanPayment}
-                  onChange={(value) => setLoanPayment(String(value))}
-                  className="md:w-36"
-                />
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="Interest %"
-                  value={loanRate}
-                  onChange={(e) => setLoanRate(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 md:w-32"
-                />
-                <Input
-                  type="date"
-                  value={loanDueDate}
-                  onChange={(e) => setLoanDueDate(e.target.value)}
-                  className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50 md:w-44"
-                />
+              <form onSubmit={handleAddLoan} className="flex flex-col md:flex-row gap-3 flex-wrap md:items-end">
+                <div className="flex flex-col gap-1.5 flex-1 min-w-50">
+                  <Label htmlFor="loan-name">Loan name</Label>
+                  <Input
+                    id="loan-name"
+                    placeholder="e.g. Car loan"
+                    value={loanName}
+                    onChange={(e) => setLoanName(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-36">
+                  <Label htmlFor="loan-total">Total amount</Label>
+                  <CurrencyInput
+                    id="loan-total"
+                    value={loanTotal}
+                    onChange={(value) => setLoanTotal(String(value))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-36">
+                  <Label htmlFor="loan-remaining">Remaining</Label>
+                  <CurrencyInput
+                    id="loan-remaining"
+                    value={loanRemaining}
+                    onChange={(value) => setLoanRemaining(String(value))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-36">
+                  <Label htmlFor="loan-payment">Monthly payment</Label>
+                  <CurrencyInput
+                    id="loan-payment"
+                    value={loanPayment}
+                    onChange={(value) => setLoanPayment(String(value))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-32">
+                  <Label htmlFor="loan-rate">Interest %</Label>
+                  <Input
+                    id="loan-rate"
+                    type="number"
+                    step="0.01"
+                    placeholder="0"
+                    value={loanRate}
+                    onChange={(e) => setLoanRate(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 md:w-44">
+                  <Label htmlFor="loan-due-date">Due date</Label>
+                  <Input
+                    id="loan-due-date"
+                    type="date"
+                    value={loanDueDate}
+                    onChange={(e) => setLoanDueDate(e.target.value)}
+                    className="h-12 rounded-xl border-[rgba(0,0,0,0.08)] bg-[#f8f1de]/50"
+                  />
+                </div>
                 <Button
                   type="submit"
                   disabled={isPending || !loanName.trim() || !loanTotal}
@@ -674,20 +823,20 @@ export function FinanceManager({
             </CardContent>
           </Card>
 
-          {loans.length === 0 && (
+          {visibleLoans.length === 0 && (
             <EmptyState icon={Landmark} title="Start tracking your loans">
               Add any loans or debt so you can see your total monthly obligations.
             </EmptyState>
           )}
 
           <div className="space-y-3">
-            {loans.map((loan) => (
+            {visibleLoans.map((loan) => (
               <motion.div
                 key={loan.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white rounded-3xl border-none shadow-sm">
+                <Card className="glass-card rounded-3xl">
                   <CardContent className="p-5 flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-[#1d1d1f]">{loan.name}</p>
@@ -703,7 +852,7 @@ export function FinanceManager({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => startTransition(async () => { await deleteLoan(loan.id) })}
+                        onClick={() => deleteWithUndo(loan.id, "Loan", deleteLoan)}
                         className="rounded-xl text-[#8a8a8a] hover:text-[#ff3b30]"
                       >
                         <Trash2 size={16} strokeWidth={1.75} />
