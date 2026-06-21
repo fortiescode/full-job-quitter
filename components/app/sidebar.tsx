@@ -84,7 +84,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
       className="hidden lg:flex flex-col h-[calc(100vh-48px)] max-h-[900px] fixed top-6 left-6 z-40"
     >
       <div
-        className={`flex flex-col h-full bg-white/80 backdrop-blur-xl border border-[#e8e0cc] rounded-3xl shadow-xl shadow-black/5 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        className={`flex flex-col h-full glass-card rounded-3xl overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
           collapsed ? "w-20" : "w-64"
         }`}
       >
@@ -96,7 +96,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
             className="flex items-center justify-center"
           >
             <Image
-              src="/fjq-logo.png"
+              src="/trans-logo.png"
               alt="full-jog-quitter logo"
               width={40}
               height={40}
@@ -114,7 +114,7 @@ export function Sidebar({ collapsed, onCollapseChange }: SidebarProps) {
         </nav>
 
         {/* Collapse / expand toggle */}
-        <div className="px-3 pb-2 pt-1 flex justify-center border-b border-[#e8e0cc]">
+        <div className="px-3 pb-2 pt-1 flex justify-center border-b border-white/40">
           <Button
             variant="ghost"
             onClick={() => onCollapseChange(!collapsed)}

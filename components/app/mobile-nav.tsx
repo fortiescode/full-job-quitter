@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -34,12 +35,16 @@ export function MobileNav() {
   return (
     <>
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 p-4">
-        <div className="bg-white/80 backdrop-blur-xl border border-[#e8e0cc] rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm">
-          <Link
-            href="/"
-            className="text-lg font-semibold tracking-tight text-[#1d1d1f]"
-          >
-            full-jog-quitter
+        <div className="glass-card rounded-2xl px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/trans-logo.png"
+              alt="full-jog-quitter logo"
+              width={28}
+              height={28}
+              className="h-7 w-auto"
+              priority
+            />
           </Link>
           <Button
             variant="ghost"

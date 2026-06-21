@@ -44,7 +44,7 @@ export function WelcomeHeader({ name, avatarUrl = "", compact = false }: Welcome
       <Avatar
         key={avatarUrl}
         className={`bg-[#f5c542] text-[#1d1d1f] font-semibold border-2 border-white shadow-sm ${
-          compact ? "w-10 h-10 text-sm" : "w-14 h-14 text-lg"
+          compact ? "w-10 h-10 text-sm" : "w-18 h-18 text-lg"
         }`}
       >
         {avatarUrl && !isEmoji(avatarUrl) ? (

@@ -79,7 +79,7 @@ export function BentoGrid() {
             <motion.div
               key={feature.title}
               variants={item}
-              className={`group bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 ${feature.className}`}
+              className={`group glass-card rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 ${feature.className}`}
             >
               <div className="w-12 h-12 rounded-xl bg-[#f5c542]/20 flex items-center justify-center mb-6">
                 <feature.icon

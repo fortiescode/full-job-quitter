@@ -14,10 +14,10 @@ export function Navbar() {
       className="fixed top-0 left-0 right-0 z-50"
     >
       <nav className="mx-4 mt-4 md:mx-6 md:mt-6">
-        <div className="bg-white/80 backdrop-blur-xl border border-[#e8e0cc] rounded-2xl px-5 py-3 max-w-7xl mx-auto flex items-center justify-between shadow-sm">
+        <div className="glass-card rounded-2xl px-5 py-3 max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image
-              src="/fjq-logo.png"
+              src="/trans-logo.png"
               alt="full-jog-quitter logo"
               width={60}
               height={60}

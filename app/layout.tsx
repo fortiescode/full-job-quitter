@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://fulljogquitter.netlify.app"),
   title: "Full Jog Quitter — Plan Your Escape from the 9-to-5 race and achieve financial freedom",
   icons: {
-    icon: "/fjq-logo.png",
+    icon: "/trans-logo.png",
   },
   description:
     "Track savings, calculate your financial runway, and execute your exit strategy with confidence.",

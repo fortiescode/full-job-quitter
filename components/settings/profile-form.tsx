@@ -50,8 +50,7 @@ interface ProfileFormProps {
   userId: string
 }
 
-const SECTIONS = ["identity", "escape", "motivation", "preferences"] as const
-type SectionName = (typeof SECTIONS)[number]
+type SectionName = "identity" | "escape" | "motivation" | "preferences"
 
 const riskOptions: {
   value: "conservative" | "moderate" | "aggressive"
@@ -172,20 +171,6 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
       window.removeEventListener("offline", handleOffline)
     }
   }, [offlineQueue])
-
-  useEffect(() => {
-    const lastSection = sessionStorage.getItem("settings_last_section") as SectionName | null
-    if (lastSection && SECTIONS.includes(lastSection)) {
-      setTimeout(() => {
-        const element = document.getElementById(`section-${lastSection}`)
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" })
-          element.classList.add("animate-highlight")
-          setTimeout(() => element.classList.remove("animate-highlight"), 600)
-        }
-      }, 300)
-    }
-  }, [])
 
   function setSectionStatus(section: SectionName, status: SectionStatus) {
     setStatuses((prev) => ({ ...prev, [section]: status }))
@@ -437,10 +422,6 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
     })
   }
 
-  function handleSectionFocus(section: SectionName) {
-    sessionStorage.setItem("settings_last_section", section)
-  }
-
   const displayName = fullName || email.split("@")[0] || "Dreamer"
 
   return (
@@ -452,7 +433,7 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
       )}
 
       {/* Hero preview card */}
-      <Card className="bg-white rounded-3xl border border-[#e8e0cc] shadow-sm overflow-hidden">
+      <Card className="glass-card rounded-3xl overflow-hidden">
         <CardContent className="p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
@@ -492,10 +473,9 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          onFocusCapture={() => handleSectionFocus("identity")}
         >
           <Card
-            className={`bg-white rounded-3xl shadow-sm h-full transition-all duration-200 ${
+            className={`glass-card rounded-3xl h-full transition-all duration-200 ${
               statuses.identity === "error"
                 ? "border-l-[3px] border-l-[#ff3b30] border-solid"
                 : "border-none"
@@ -565,10 +545,9 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          onFocusCapture={() => handleSectionFocus("escape")}
         >
           <Card
-            className={`bg-white rounded-3xl shadow-sm h-full transition-all duration-200 ${
+            className={`glass-card rounded-3xl h-full transition-all duration-200 ${
               statuses.escape === "error"
                 ? "border-l-[3px] border-l-[#ff3b30] border-solid"
                 : "border-none"
@@ -707,10 +686,9 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           className="lg:col-span-2"
-          onFocusCapture={() => handleSectionFocus("motivation")}
         >
           <Card
-            className={`bg-white rounded-3xl shadow-sm transition-all duration-200 ${
+            className={`glass-card rounded-3xl transition-all duration-200 ${
               statuses.motivation === "error"
                 ? "border-l-[3px] border-l-[#ff3b30] border-solid"
                 : "border-l-4 border-l-[var(--accent-color)]"
@@ -742,10 +720,10 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
                       key={option.value}
                       type="button"
                       onClick={() => handleRiskToleranceChange(option.value)}
-                      className={`p-6 rounded-2xl text-left transition-all ${
+                      className={`p-6 rounded-2xl text-left transition-all backdrop-blur-xl backdrop-saturate-150 ${
                         riskTolerance === option.value
-                          ? "bg-white border-2 border-[var(--accent-color)] text-[#1d1d1f]"
-                          : "bg-white border border-[#e8e0cc] text-[#1d1d1f] hover:border-[#d4d0c5]"
+                          ? "bg-white/55 border-2 border-[var(--accent-color)] text-[#1d1d1f]"
+                          : "bg-white/35 border border-white/50 text-[#1d1d1f] hover:border-white/70"
                       }`}
                     >
                       <p className="font-semibold">{option.label}</p>
@@ -773,10 +751,9 @@ export function ProfileForm({ profile, goal, email, userId }: ProfileFormProps) 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
           className="lg:col-span-2"
-          onFocusCapture={() => handleSectionFocus("preferences")}
         >
           <Card
-            className={`bg-white rounded-3xl shadow-sm transition-all duration-200 ${
+            className={`glass-card rounded-3xl transition-all duration-200 ${
               statuses.preferences === "error"
                 ? "border-l-[3px] border-l-[#ff3b30] border-solid"
                 : "border-none"

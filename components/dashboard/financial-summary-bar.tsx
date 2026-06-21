@@ -27,7 +27,7 @@ export function FinancialSummaryBar({
   ]
 
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border border-[#e8e0cc] flex flex-wrap items-center ${compact ? "px-4 py-2 gap-3" : "px-5 py-3 gap-4"}`}>
+    <div className={`glass-card rounded-2xl flex flex-wrap items-center ${compact ? "px-4 py-2 gap-3" : "px-5 py-3 gap-4"}`}>
       {items.map((item, index) => (
         <div key={item.label} className="flex items-center gap-2">
           {index > 0 && (

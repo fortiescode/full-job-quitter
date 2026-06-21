@@ -6,10 +6,10 @@ export function timeAgo(dateInput: string | Date | null | undefined): string {
 
   const minutes = Math.floor(diff / (1000 * 60))
   if (minutes < 5) return "just now"
-  if (minutes < 60) return `${minutes} minutes ago`
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`
 
   const hours = Math.floor(diff / (1000 * 60 * 60))
-  if (hours < 24) return `${hours} hours ago`
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   if (days < 2) return "yesterday"

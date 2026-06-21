@@ -29,8 +29,6 @@ interface FreedomCalculatorProps {
   riskTolerance: "conservative" | "moderate" | "aggressive" | null
 }
 
-const WHAT_IF_EXTRA = 500
-
 function formatDate(date: Date | null): string {
   if (!date) return "—"
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" })
@@ -99,7 +97,6 @@ interface MoneyFieldProps {
   step?: number
   note?: React.ReactNode
   tooltip?: React.ReactNode
-  currency: string
 }
 
 function MoneyField({
@@ -112,7 +109,6 @@ function MoneyField({
   step = 500,
   note,
   tooltip,
-  currency,
 }: MoneyFieldProps) {
   return (
     <TooltipProvider>
@@ -123,9 +119,6 @@ function MoneyField({
             {label}
             {tooltip && <FieldTooltip>{tooltip}</FieldTooltip>}
           </Label>
-        <span className="text-sm font-medium text-[#f5c542]">
-          {formatCurrency(value, currency)}
-        </span>
       </div>
       <Slider
         value={[value]}
@@ -178,9 +171,6 @@ function NumberField({
             {label}
             {tooltip && <FieldTooltip>{tooltip}</FieldTooltip>}
           </Label>
-        <span className="text-sm font-medium text-[#f5c542]">
-          {value} {unit}
-        </span>
       </div>
       <Slider
         value={[value]}
@@ -292,7 +282,7 @@ function QuitFasterTips({
         <ArrowRight
           size={16}
           strokeWidth={1.75}
-          className="shrink-0 ml-2 text-[#f5c542] group-hover:translate-x-1 transition-transform"
+          className="shrink-0 ml-2 text-[var(--accent-color)] group-hover:translate-x-1 transition-transform"
         />
       </button>
 
@@ -315,7 +305,7 @@ function QuitFasterTips({
           <ArrowRight
             size={16}
             strokeWidth={1.75}
-            className="shrink-0 ml-2 text-[#f5c542] group-hover:translate-x-1 transition-transform"
+            className="shrink-0 ml-2 text-[var(--accent-color)] group-hover:translate-x-1 transition-transform"
           />
         </button>
       )}
@@ -335,7 +325,7 @@ function QuitFasterTips({
         <ArrowRight
           size={16}
           strokeWidth={1.75}
-          className="shrink-0 ml-2 text-[#f5c542] group-hover:translate-x-1 transition-transform"
+          className="shrink-0 ml-2 text-[var(--accent-color)] group-hover:translate-x-1 transition-transform"
         />
       </button>
     </div>
@@ -368,6 +358,17 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
     initialGoal?.target_runway_months || 6
   )
 
+  // Baseline to detect unsaved changes against
+  const [savedSnapshot, setSavedSnapshot] = useState({
+    monthlySalary: Number(initialGoal?.monthly_income) || 0,
+    monthlyExpenses: Number(initialGoal?.monthly_expenses) || 0,
+    currentSavings: Number(initialGoal?.current_savings) || 0,
+    postQuitIncome: Number(initialGoal?.desired_post_quit_income) || 0,
+    postQuitExpenses:
+      Number(initialGoal?.monthly_expenses_after_quit) || Number(initialGoal?.monthly_expenses) || 0,
+    monthsOfSafety: initialGoal?.target_runway_months || 6,
+  })
+
   const [isPending, startTransition] = useTransition()
 
   function handleMonthlyExpensesChange(value: number) {
@@ -382,8 +383,39 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
     setHasEditedPostQuitExpenses(true)
   }
 
+  function applyScenario(changes: {
+    monthlySalary?: number
+    monthlyExpenses?: number
+    postQuitIncome?: number
+  }) {
+    const previous = { monthlySalary, monthlyExpenses, postQuitIncome }
+
+    if (changes.monthlySalary !== undefined) setMonthlySalary(changes.monthlySalary)
+    if (changes.monthlyExpenses !== undefined) handleMonthlyExpensesChange(changes.monthlyExpenses)
+    if (changes.postQuitIncome !== undefined) setPostQuitIncome(changes.postQuitIncome)
+
+    toast.success("Scenario applied", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setMonthlySalary(previous.monthlySalary)
+          handleMonthlyExpensesChange(previous.monthlyExpenses)
+          setPostQuitIncome(previous.postQuitIncome)
+        },
+      },
+    })
+  }
+
   const monthlySavings = monthlySalary - monthlyExpenses
   const isOverspending = monthlySavings < 0
+
+  const isDirty =
+    monthlySalary !== savedSnapshot.monthlySalary ||
+    monthlyExpenses !== savedSnapshot.monthlyExpenses ||
+    currentSavings !== savedSnapshot.currentSavings ||
+    postQuitIncome !== savedSnapshot.postQuitIncome ||
+    postQuitExpenses !== savedSnapshot.postQuitExpenses ||
+    monthsOfSafety !== savedSnapshot.monthsOfSafety
 
   const runway = calculateRunway({
     monthlySalary,
@@ -393,20 +425,6 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
     monthlyExpensesAfterQuit: postQuitExpenses,
     monthsOfSafety,
   })
-
-  const whatIfRunway = calculateRunway({
-    monthlySalary: monthlySalary + WHAT_IF_EXTRA,
-    monthlyExpenses,
-    currentSavings,
-    postQuitIncome,
-    monthlyExpensesAfterQuit: postQuitExpenses,
-    monthsOfSafety,
-  })
-
-  const monthsSaved =
-    runway.projectedMonthsToGoal && whatIfRunway.projectedMonthsToGoal
-      ? runway.projectedMonthsToGoal - whatIfRunway.projectedMonthsToGoal
-      : 0
 
   const riskConfig = {
     conservative: { label: "Play it safe", className: "bg-[#e8e0cc] text-[#1d1d1f] hover:bg-[#e8e0cc]/80" },
@@ -431,6 +449,14 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
         toast.error(result.error)
         return
       }
+      setSavedSnapshot({
+        monthlySalary,
+        monthlyExpenses,
+        currentSavings,
+        postQuitIncome,
+        postQuitExpenses,
+        monthsOfSafety,
+      })
       toast.success("Quit plan saved")
     })
   }
@@ -446,6 +472,94 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
         </p>
       </div>
 
+      {/* Hero: the answer, front and center */}
+      <Card className="glass-card rounded-3xl border-l-4 border-l-[var(--accent-color)]">
+        <CardContent className="p-6 md:p-8">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <p className="text-sm font-medium text-[#8a8a8a] flex items-center gap-2">
+              <Target size={16} strokeWidth={1.75} />
+              Projected quit date
+            </p>
+            {riskBadge && (
+              <Badge className={`rounded-full text-xs font-medium ${riskBadge.className}`}>
+                {riskBadge.label}
+              </Badge>
+            )}
+          </div>
+          {monthlySalary <= 0 ? (
+            <>
+              <p className="text-3xl md:text-4xl font-semibold text-[#1d1d1f]">
+                Enter your salary
+              </p>
+              <p className="text-sm text-[#8a8a8a] mt-2">
+                Enter your monthly salary below to see your quit date.
+              </p>
+            </>
+          ) : runway.monthlySurplus <= 0 ? (
+            <>
+              <p className="text-3xl md:text-4xl font-semibold text-[#ff3b30]">
+                You&apos;re spending more than you earn
+              </p>
+              <p className="text-sm text-[#8a8a8a] mt-2">
+                You&apos;re spending{" "}
+                {formatCurrency(Math.abs(runway.monthlySurplus), currency)} more than you
+                earn. Reduce expenses or increase income to start saving for your
+                escape.
+              </p>
+            </>
+          ) : runway.savingsGap <= 0 ? (
+            <>
+              <p className="text-4xl md:text-5xl font-semibold text-[#34c759]">
+                You&apos;ve saved enough!
+              </p>
+              <p className="text-sm text-[#8a8a8a] mt-2">
+                You&apos;re ready to plan your exit.
+              </p>
+            </>
+          ) : runway.projectedMonthsToGoal && runway.projectedMonthsToGoal > 120 ? (
+            <>
+              <p className="text-4xl md:text-5xl font-semibold text-[#1d1d1f]">
+                {formatDate(runway.projectedQuitDate)}
+              </p>
+              <p className="text-sm text-[#ff9500] mt-2">
+                At this rate, you&apos;ll be ready in about{" "}
+                {Math.ceil(runway.projectedMonthsToGoal / 12)} years. See tips
+                below to speed things up.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-4xl md:text-5xl font-semibold text-[#1d1d1f]">
+                {formatDate(runway.projectedQuitDate)}
+              </p>
+              {runway.projectedMonthsToGoal && (
+                <p className="text-sm text-[#8a8a8a] mt-2">
+                  About {runway.projectedMonthsToGoal} months away
+                </p>
+              )}
+            </>
+          )}
+
+          <div className="mt-6">
+            <ProjectionBars
+              currentSavings={currentSavings}
+              requiredSavings={runway.requiredSavings}
+              currency={currency}
+            />
+            <div className="flex items-center gap-4 mt-3 text-xs text-[#8a8a8a]">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#d4d0c5]" />
+                Current
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-color)]" />
+                Projected
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left side: inputs */}
         <div className="space-y-6">
@@ -458,7 +572,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
             <p className="text-sm text-[#8a8a8a]">Your current money situation</p>
           </div>
 
-          <Card className="bg-white rounded-3xl border-none shadow-sm border-l-[3px] border-l-[#3B82F6]">
+          <Card className="glass-card rounded-3xl border-l-[3px] border-l-[var(--accent-color)]">
             <CardContent className="p-6 space-y-8">
               <MoneyField
                 label="Monthly salary"
@@ -469,7 +583,6 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={50000}
                 step={500}
                 tooltip="Your total take-home pay from your current job after taxes"
-                currency={currency}
               />
 
               <MoneyField
@@ -481,7 +594,6 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={20000}
                 step={100}
                 tooltip="Everything you spend to live: rent, food, bills, subscriptions, fun"
-                currency={currency}
               />
 
               <MoneyField
@@ -493,7 +605,6 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={500000}
                 step={1000}
                 tooltip="Cash you have right now in savings accounts — don't count investments"
-                currency={currency}
               />
 
               <TooltipProvider>
@@ -533,7 +644,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
             <p className="text-sm text-[#8a8a8a]">Your future money situation</p>
           </div>
 
-          <Card className="bg-white rounded-3xl border-none shadow-sm border-l-[3px] border-l-[#f5c542]">
+          <Card className="glass-card rounded-3xl border-l-[3px] border-l-[var(--accent-color)]">
             <CardContent className="p-6 space-y-8">
               <MoneyField
                 label="Expected monthly income after quitting"
@@ -544,13 +655,12 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={50000}
                 step={500}
                 tooltip="Money from freelancing, side work, or part-time gigs after you quit"
-                currency={currency}
                 note={
                   <>
                     Also set in{" "}
                     <Link
                       href="/settings"
-                      className="text-[#3B82F6] hover:underline"
+                      className="text-[var(--accent-color)] hover:underline"
                     >
                       Settings
                     </Link>
@@ -567,7 +677,6 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 max={20000}
                 step={100}
                 tooltip="Your costs might change: no commute, different city, cheaper lifestyle?"
-                currency={currency}
               />
 
               <NumberField
@@ -581,6 +690,13 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 unit="months"
                 tooltip="How many months you want savings to last if post-quit income drops to zero"
               />
+
+              {isDirty && (
+                <p className="text-xs text-[#ff9500] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ff9500]" />
+                  Unsaved changes — your dashboard won&apos;t reflect these until you save
+                </p>
+              )}
 
               <Button
                 onClick={handleSave}
@@ -610,7 +726,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
             <p className="text-sm text-[#8a8a8a]">What the numbers mean</p>
           </div>
 
-          <Card className="bg-white rounded-3xl border-none shadow-sm border-l-4 border-l-[#f5c542]">
+          <Card className="glass-card rounded-3xl border-l-4 border-l-[var(--accent-color)]">
             <CardContent className="p-6">
               <p className="text-sm text-[#8a8a8a] mb-1">Required savings</p>
               <p className="text-4xl font-semibold text-[#1d1d1f]">
@@ -623,7 +739,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
           </Card>
 
           <div className="grid grid-cols-2 gap-5">
-            <Card className="bg-white rounded-3xl border-none shadow-sm">
+            <Card className="glass-card rounded-3xl">
               <CardContent className="p-6">
                 <p className="text-sm text-[#8a8a8a] mb-1">Monthly savings</p>
                 <p
@@ -635,7 +751,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-white rounded-3xl border-none shadow-sm">
+            <Card className="glass-card rounded-3xl">
               <CardContent className="p-6">
                 <p className="text-sm text-[#8a8a8a] mb-1">
                   Monthly shortfall after quitting
@@ -660,86 +776,12 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
             </Card>
           </div>
 
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
+          <Card className="glass-card rounded-3xl">
             <CardContent className="p-6">
               <p className="text-sm text-[#8a8a8a] mb-1">Savings gap</p>
               <p className="text-3xl font-semibold text-[#1d1d1f]">
                 {formatCurrency(runway.savingsGap, currency)}
               </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white rounded-3xl border-none shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between gap-3 mb-1">
-                <p className="text-sm text-[#8a8a8a]">Projected quit date</p>
-                {riskBadge && (
-                  <Badge className={`rounded-full text-xs font-medium ${riskBadge.className}`}>
-                    {riskBadge.label}
-                  </Badge>
-                )}
-              </div>
-              {monthlySalary <= 0 ? (
-                <>
-                  <p className="text-2xl font-semibold text-[#ff3b30]">
-                    Enter your salary
-                  </p>
-                  <p className="text-sm text-[#8a8a8a] mt-2">
-                    Enter your monthly salary to see your quit date.
-                  </p>
-                </>
-              ) : runway.monthlySurplus <= 0 ? (
-                <>
-                  <p className="text-2xl font-semibold text-[#ff3b30]">
-                    You&apos;re spending more than you earn
-                  </p>
-                  <p className="text-sm text-[#8a8a8a] mt-2">
-                    You&apos;re spending{" "}
-                    {formatCurrency(Math.abs(runway.monthlySurplus), currency)} more than you
-                    earn. Reduce expenses or increase income to start saving for your
-                    escape.
-                  </p>
-                </>
-              ) : runway.savingsGap <= 0 ? (
-                <>
-                  <p className="text-3xl font-semibold text-[#34c759]">
-                    You&apos;ve saved enough!
-                  </p>
-                  <p className="text-sm text-[#8a8a8a] mt-2">
-                    You&apos;re ready to plan your exit.
-                  </p>
-                </>
-              ) : runway.projectedMonthsToGoal && runway.projectedMonthsToGoal > 120 ? (
-                <>
-                  <p className="text-3xl font-semibold text-[#1d1d1f]">
-                    {formatDate(runway.projectedQuitDate)}
-                  </p>
-                  <p className="text-sm text-[#ff9500] mt-2">
-                    At this rate, you&apos;ll be ready in about{" "}
-                    {Math.ceil(runway.projectedMonthsToGoal / 12)} years. See tips
-                    below to speed things up.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-semibold text-[#1d1d1f]">
-                    {formatDate(runway.projectedQuitDate)}
-                  </p>
-                  {runway.projectedMonthsToGoal && (
-                    <p className="text-sm text-[#8a8a8a] mt-2">
-                      About {runway.projectedMonthsToGoal} months away
-                    </p>
-                  )}
-                </>
-              )}
-
-              <div className="mt-6">
-                <ProjectionBars
-                  currentSavings={currentSavings}
-                  requiredSavings={runway.requiredSavings}
-                  currency={currency}
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -754,11 +796,7 @@ export function FreedomCalculator({ initialGoal, riskTolerance }: FreedomCalcula
               monthsOfSafety={monthsOfSafety}
               currentProjectedMonths={runway.projectedMonthsToGoal ?? 0}
               currency={currency}
-              onScenario={({ monthlySalary: newSalary, monthlyExpenses: newExpenses, postQuitIncome: newPostIncome }) => {
-                if (newSalary !== undefined) setMonthlySalary(newSalary)
-                if (newExpenses !== undefined) handleMonthlyExpensesChange(newExpenses)
-                if (newPostIncome !== undefined) setPostQuitIncome(newPostIncome)
-              }}
+              onScenario={applyScenario}
             />
           )}
 
